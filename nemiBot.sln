@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}") = "nemiBot", "nemiBot\nemiBot.njsproj", "{55E92BBF-E550-4828-B6A5-D9A882C477CF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{55E92BBF-E550-4828-B6A5-D9A882C477CF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{55E92BBF-E550-4828-B6A5-D9A882C477CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{55E92BBF-E550-4828-B6A5-D9A882C477CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{55E92BBF-E550-4828-B6A5-D9A882C477CF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {7E9EAC00-E7E0-478C-BB7A-9C8D6B6EDFC8}
+	EndGlobalSection
+EndGlobal

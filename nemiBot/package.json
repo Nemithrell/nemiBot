@@ -1,0 +1,57 @@
+{
+  "name": "nemiBot",
+  "version": "0.0.0",
+  "description": "nemiBot",
+  "main": "nemiBot.js",
+  "author": {
+    "name": "Nemithrell"
+  },
+  "dependencies": {
+    "chalk": "^4.1.1",
+    "discord.js": "^12.5.3",
+    "text-table": "^0.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^7.25.0"
+  },
+  "eslintConfig": {
+    "env": {
+      "commonjs": true,
+      "es6": true,
+      "node": true
+    },
+    "extends": "eslint:recommended",
+    "globals": {
+      "Atomics": "readonly",
+      "SharedArrayBuffer": "readonly"
+    },
+    "parserOptions": {
+      "ecmaVersion": 2020
+    },
+    "rules": {
+      "prefer-const": [
+        "error"
+      ],
+      "indent": [
+        "error",
+        "tab",
+        {
+          "SwitchCase": 1
+        }
+      ],
+      "quotes": [
+        "error",
+        "double"
+      ],
+      "semi": [
+        "error",
+        "always"
+      ],
+      "linebreak-style": 0,
+      "require-atomic-updates": 0
+    }
+  },
+  "eslintIgnore": [
+    "dashboard/public"
+  ]
+}
