@@ -1,4 +1,4 @@
-const { MessageEmbed } = require("discord.js");
+const { Message, MessageEmbed } = require("discord.js");
 const config = require("../config");
 
 MessageEmbed.prototype.errorColor = function ()
@@ -17,4 +17,28 @@ MessageEmbed.prototype.defaultColor = function ()
 {
 	this.setColor(config.color);
 	return this;
+};
+
+// Wrapper for sendT with error emoji
+Message.prototype.error = function (string)
+{
+	const prefixEmoji = "error";
+	return this.sendMessage(string, prefixEmoji);
+};
+
+// Wrapper for sendT with success emoji
+Message.prototype.success = function (string)
+{
+	const prefixEmoji = "success";
+	return this.sendMessage(string, prefixEmoji);
+};
+
+Message.prototype.sendMessage = function (string, prefixEmoji)
+{
+	if (prefixEmoji)
+	{
+		string = `${this.client.customEmojis[prefixEmoji]} ${string}`;
+	}
+	return this.channel.send(string);
+
 };

@@ -1,0 +1,97 @@
+const Command = require("../../base/Command.js"),
+	Discord = require("discord.js");
+
+class Help extends Command
+{
+	constructor(client)
+	{
+		super(client, {
+			name: "help",
+			description: "Show commands list or specific command help.",
+			usage: `${client.config.prefix}help (command)`,
+			examples: `${client.config.prefix}help h`,
+			dirname: __dirname,
+			enabled: true,
+			guildOnly: false,
+			aliases: ["aide", "h", "commands"],
+			memberPermissions: [],
+			botPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
+			nsfw: false,
+			ownerOnly: false,
+			cooldown: 5000
+		});
+	}
+
+	async run(message, args, data)
+	{
+		const prefix = this.client.config.prefix;
+
+		// if a command is provided
+		if (args[0])
+		{
+
+			// if the command doesn't exist, error message
+			const cmd = this.client.commands.get(args[0]) || this.client.commands.get(this.client.aliases.get(args[0]));
+			if (!cmd)
+			{
+				return message.error(`${args[0]} is not a valid command`);
+			}
+
+			// Creates the help embed
+			const groupEmbed = new Discord.MessageEmbed()
+				.setAuthor(`Help information on command: ${prefix}${cmd.help.name}`)
+				.addField("Description", `${cmd.help.description}`)
+				.addField("Usage", `${ cmd.help.usage}`)
+				.addField("Examples", `${cmd.help.examples}`)
+				.addField("Alias",
+					cmd.help.aliases.length > 0
+						? cmd.help.aliases.map(a => "`" + a + "`").join("\n")
+						: "No alias"
+				)
+				.addField("Permissions",
+					cmd.conf.memberPermissions.length > 0
+						? cmd.conf.memberPermissions.map((p) => "`" + p + "`").join("\n")
+						: "No specific permission is required to execute this command."
+				)
+				.setColor(this.client.config.embed.color)
+				.setFooter(this.client.config.embed.footer);
+
+			// and send the embed in the current channel
+			return message.channel.send(groupEmbed);
+		}
+
+		//put all command categories into an array
+		const categories = [];
+		const commands = this.client.commands;
+
+		commands.forEach((command) =>
+		{
+			if (!categories.includes(command.help.category))
+			{
+				if (command.help.category === "Owner" && message.author.id !== this.client.config.owner.id)
+				{
+					return;
+				}
+				categories.push(command.help.category);
+			}
+		});
+
+		const emojis = this.client.customEmojis;
+
+		const embed = new Discord.MessageEmbed()
+			.setDescription(`To get help on a specific command type "${prefix}help <command>"!`)
+			.setColor(data.config.embed.color)
+			.setFooter(data.config.embed.footer);
+		categories.sort().forEach((cat) =>
+		{
+			const tCommands = commands.filter((cmd) => cmd.help.category === cat);
+			embed.addField(emojis.categories[cat.toLowerCase()] + " " + cat + " - (" + tCommands.size + ")", tCommands.map((cmd) => "`" + cmd.help.name + "`").join(", "));
+		});
+
+		embed.setAuthor(`${this.client.user.username} commands`);
+		return message.channel.send(embed);
+	}
+
+}
+
+module.exports = Help;

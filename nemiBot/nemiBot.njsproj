@@ -29,11 +29,23 @@
     <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="base\command.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="base\nemiBot.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="commands\General\help.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="config.js">
       <Publish>True</Publish>
+    </Content>
+    <Content Include="emojis.json">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Events\message.js">
+      <SubType>Code</SubType>
     </Content>
     <Content Include="nemiBot.js" />
     <Content Include="config.sample.js">
@@ -49,12 +61,10 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="package.json" />
-    <Content Include="README.md">
-      <Publish>False</Publish>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="base\" />
+    <Folder Include="commands\General\" />
     <Folder Include="helpers\" />
     <Folder Include="commands\" />
     <Folder Include="Events\" />

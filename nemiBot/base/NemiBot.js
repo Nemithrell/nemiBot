@@ -10,6 +10,7 @@ class nemiBot extends Client
 	{
 		super(options);
 		this.config = require("../config"); // Load the config file
+		this.customEmojis = require("../emojis.json"); // load the bot's emojis
 		this.commands = new Collection(); // Creates new commands collection
 		this.aliases = new Collection(); // Creates new command aliases collection
 		this.logger = require("../helpers/logger"); // Load the logger file
