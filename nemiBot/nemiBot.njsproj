@@ -38,13 +38,32 @@
     <Content Include="commands\General\help.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="commands\Torn\loot.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="commands\Torn\Verify.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="config.js">
       <Publish>True</Publish>
+    </Content>
+    <Content Include="db\torn.js" />
+    <Content Include="db\yata.js">
+      <SubType>Code</SubType>
     </Content>
     <Content Include="emojis.json">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="Events\guildCreate.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="Events\message.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="helpers\functions.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="helpers\tornAPI.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="nemiBot.js" />
@@ -60,15 +79,20 @@
     <Content Include="helpers\logger.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="nemiBot.service">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="package.json" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="base\" />
     <Folder Include="commands\General\" />
+    <Folder Include="commands\Torn\" />
     <Folder Include="helpers\" />
     <Folder Include="commands\" />
     <Folder Include="Events\" />
     <Folder Include="docs\" />
+    <Folder Include="db\" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\Node.js Tools\Microsoft.NodejsToolsV2.targets" />
 </Project>

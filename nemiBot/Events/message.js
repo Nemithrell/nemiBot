@@ -38,7 +38,7 @@ module.exports = class
 		}
 
 		// Gets the prefix
-		const prefix = client.config.prefix;
+		const prefix = client.getPrefix(message);
 		if (!prefix)
 		{
 			return;
@@ -103,13 +103,6 @@ module.exports = class
 			}
 
 			client.logger.log(`${message.author.username} (${message.author.id}) ran command ${cmd.help.name}`, "cmd");
-
-			//const log = new this.client.logs({
-			//	commandName: cmd.help.name,
-			//	author: { username: message.author.username, discriminator: message.author.discriminator, id: message.author.id },
-			//	guild: { name: message.guild ? message.guild.name : "dm", id: message.guild ? message.guild.id : "dm" }
-			//});
-			//log.save();
 		}
 		try
 		{

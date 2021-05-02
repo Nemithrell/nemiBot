@@ -1,0 +1,10 @@
+[Unit]
+Description=nemiBot
+After=network.target
+
+[Service]
+WorkingDirectory=/opt/nemiBot/
+ExecStart=/usr/bin/node nemiBot.js
+
+[Install]
+WantedBy=multi-user.target
