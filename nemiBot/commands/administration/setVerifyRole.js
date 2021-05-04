@@ -6,7 +6,7 @@ class SetVerifyRole extends Command {
       name: 'setverifyrole',
       description: 'Set the role to be assigned to users that verify',
       usage: 'setverifyrole (role)',
-      examples: 'setverifyrole',
+      examples: 'setverifyrole @test',
       dirname: __dirname,
       enabled: true,
       guildOnly: true,

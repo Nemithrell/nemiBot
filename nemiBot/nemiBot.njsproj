@@ -45,7 +45,7 @@
     <Content Include="commands\Torn\loot.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="commands\Torn\setVerifyRole.js">
+    <Content Include="commands\Administration\setVerifyRole.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="commands\Torn\Verify.js">
@@ -91,6 +91,7 @@
   <ItemGroup>
     <Folder Include="base\" />
     <Folder Include="commands\General\" />
+    <Folder Include="commands\Administration\" />
     <Folder Include="commands\Torn\" />
     <Folder Include="helpers\" />
     <Folder Include="commands\" />
