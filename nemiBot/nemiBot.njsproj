@@ -4,6 +4,7 @@
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <Name>nemiBot</Name>
     <RootNamespace>nemiBot</RootNamespace>
+    <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -20,7 +21,7 @@
     <OutputPath>.</OutputPath>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <ProjectTypeGuids>{3AF33F2E-1136-4D97-BBB7-1795711AC8B8};{9092AA53-FB77-4645-B42D-1CCCA6BD08BD}</ProjectTypeGuids>
-    <StartWebBrowser>false</StartWebBrowser>
+    <StartWebBrowser>False</StartWebBrowser>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,6 +33,9 @@
     <Content Include="base\command.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="base\guild.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="base\nemiBot.js">
       <SubType>Code</SubType>
     </Content>
@@ -39,6 +43,9 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="commands\Torn\loot.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="commands\Torn\setVerifyRole.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="commands\Torn\Verify.js">
@@ -58,9 +65,6 @@
       <SubType>Code</SubType>
     </Content>
     <Content Include="Events\message.js">
-      <SubType>Code</SubType>
-    </Content>
-    <Content Include="helpers\functions.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="helpers\tornAPI.js">

@@ -1,48 +1,38 @@
-const Command = require("../../base/Command.js"),
-	{ user } = require("../../helpers/tornAPI.js");
+const Command = require('../../base/Command.js');
+const { user } = require('../../helpers/tornAPI.js');
 
-class Verify extends Command
-{
-	constructor(client)
-	{
-		super(client, {
-			name: "verify",
-			description: "Verify your discord account against torn.",
-			usage: `${client.config.prefix}verify (command)`,
-			examples: `${client.config.prefix}verify`,
-			dirname: __dirname,
-			enabled: true,
-			guildOnly: true,
-			aliases: ["v"],
-			memberPermissions: [],
-			botPermissions: ["SEND_MESSAGES", "EMBED_LINKS"],
-			nsfw: false,
-			ownerOnly: false,
-			cooldown: 5000
-		});
-	}
+class Verify extends Command {
+  constructor (client) {
+    super(client, {
+      name: 'verify',
+      description: 'Verify your discord account against torn.',
+      usage: 'verify (user)',
+      examples: 'verify',
+      dirname: __dirname,
+      enabled: true,
+      guildOnly: true,
+      aliases: ['v'],
+      memberPermissions: [],
+      botPermissions: ['SEND_MESSAGES', 'EMBED_LINKS'],
+      nsfw: false,
+      ownerOnly: false,
+      cooldown: 5000
+    });
+  }
 
-	async run(message)
-	{
-		try
-		{
-			const result = await user.discord(message.author.id);
+  async run (message, args, data) {
+    try {
+      const verifyRole = data.config.verifiedrole.role;
+      const userDiscord = await user.discord(message.author.id);
+      const userBasic = await user.basic(userDiscord.discord.userID);
 
+      if (verifyRole != null) message.member.roles.add(verifyRole);
 
-			console.log(result.discord.userID);
-			console.log(result.discord.discordID);
-			message.member.roles.add("837488589582893067");
-			//message.member.setNickname("test");
-		}
-		catch (err)
-		{
-			this.client.logger.log(err.stack, "error");
-		}
-
-		
-		
-	}
-
+      message.member.setNickname(`${userBasic.name} [${userBasic.player_id}]`);
+    } catch (err) {
+      this.client.logger.log(err, 'error');
+    }
+  }
 }
 
 module.exports = Verify;

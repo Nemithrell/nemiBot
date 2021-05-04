@@ -11,51 +11,21 @@
     "discord.js": "^12.5.3",
     "got": "^11.8.2",
     "node-cache": "^5.1.2",
+    "node-fetch": "^2.6.1",
     "pg": "^8.6.0",
     "pretty-ms": "^7.0.1",
     "text-table": "^0.2.0"
   },
   "devDependencies": {
-    "eslint": "^7.25.0"
+    "eslint": "^7.25.0",
+    "eslint-config-semistandard": "^15.0.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^5.1.0",
+    "semistandard": "^16.0.0",
+    "standard": "^16.0.3"
   },
   "eslintConfig": {
-    "env": {
-      "commonjs": true,
-      "es6": true,
-      "node": true
-    },
-    "extends": "eslint:recommended",
-    "globals": {
-      "Atomics": "readonly",
-      "SharedArrayBuffer": "readonly"
-    },
-    "parserOptions": {
-      "ecmaVersion": 2020
-    },
-    "rules": {
-      "prefer-const": [
-        "error"
-      ],
-      "indent": [
-        "error",
-        "tab",
-        {
-          "SwitchCase": 1
-        }
-      ],
-      "quotes": [
-        "error",
-        "double"
-      ],
-      "semi": [
-        "error",
-        "always"
-      ],
-      "linebreak-style": 0,
-      "require-atomic-updates": 0
-    }
-  },
-  "eslintIgnore": [
-    "dashboard/public"
-  ]
+    "extends": "semistandard"
+  }
 }
