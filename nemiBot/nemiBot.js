@@ -1,12 +1,15 @@
+const { Intents } = require('discord.js');
 require('./helpers/extenders');
-
 const util = require('util');
 const fs = require('fs');
 const readdir = util.promisify(fs.readdir);
 
+const myIntents = new Intents();
+myIntents.add('GUILD_MEMBERS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS', 'GUILDS', 'DIRECT_MESSAGES', 'GUILD_EMOJIS', Intents.NON_PRIVILEGED);
+
 // Load nemiBot class
 const NemiBot = require('./base/nemiBot');
-const client = new NemiBot();
+const client = new NemiBot({ ws: { intents: myIntents }, partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER'] });
 
 const init = async () => {
   // Search for all commands

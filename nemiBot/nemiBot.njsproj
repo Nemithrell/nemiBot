@@ -39,13 +39,18 @@
     <Content Include="base\nemiBot.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="commands\Administration\roleReactions.js" />
+    <Content Include="commands\Administration\removeNpc.js" />
+    <Content Include="commands\Administration\addNpc.js" />
+    <Content Include="commands\Administration\setChannels.js" />
+    <Content Include="commands\Owner\connectTornFaction.js" />
     <Content Include="commands\General\help.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="commands\Torn\loot.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="commands\Administration\setVerifyRole.js">
+    <Content Include="commands\Administration\setRoles.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="commands\Torn\Verify.js">
@@ -64,7 +69,21 @@
     <Content Include="Events\guildCreate.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="Events\guildDelete.js">
+      <SubType>Code</SubType>
+    </Content>
     <Content Include="Events\message.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Events\messageReactionRemove.js" />
+    <Content Include="Events\messageReactionAdd.js" />
+    <Content Include="Events\ready.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="helpers\functions.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="helpers\resolvers.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="helpers\tornAPI.js">
@@ -92,6 +111,7 @@
     <Folder Include="base\" />
     <Folder Include="commands\General\" />
     <Folder Include="commands\Administration\" />
+    <Folder Include="commands\Owner\" />
     <Folder Include="commands\Torn\" />
     <Folder Include="helpers\" />
     <Folder Include="commands\" />

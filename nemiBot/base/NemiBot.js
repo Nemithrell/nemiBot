@@ -7,11 +7,11 @@ class nemiBot extends Client {
   constructor (options) {
     super(options);
     this.config = require('../config'); // Load the config file
+    this.guilddata = require('../base/guild');
     this.customEmojis = require('../emojis.json'); // load the bot's emojis
     this.commands = new Collection(); // Creates new commands collection
     this.aliases = new Collection(); // Creates new command aliases collection
     this.logger = require('../helpers/logger'); // Load the logger file
-    this.guilddata = require('../base/guild');
   }
 
   // This function is used to load a command and add it to the collection
@@ -23,9 +23,9 @@ class nemiBot extends Client {
       if (props.init) {
         props.init(this);
       }
-      this.commands.set(props.help.name, props);
+      this.commands.set(props.help.name.toLowerCase(), props);
       props.help.aliases.forEach((alias) => {
-        this.aliases.set(alias, props.help.name);
+        this.aliases.set(alias.toLowerCase(), props.help.name.toLowerCase());
       });
       return false;
     } catch (e) {
@@ -57,7 +57,7 @@ class nemiBot extends Client {
         `<@!${message.client.user.id}> `,
         `<@${message.client.user.id}> `,
         message.client.user.username.toLowerCase(),
-        data.config.prefix
+        data.config.Prefix
       ];
       let prefix = null;
       prefixes.forEach((p) => {

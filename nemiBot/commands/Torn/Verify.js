@@ -1,10 +1,12 @@
 const Command = require('../../base/Command.js');
+const { resolveMember } = require('../../helpers/resolvers.js');
 const { user } = require('../../helpers/tornAPI.js');
+const { verifyAll } = require('../../helpers/functions.js');
 
 class Verify extends Command {
   constructor (client) {
     super(client, {
-      name: 'verify',
+      name: 'Verify',
       description: 'Verify your discord account against torn.',
       usage: 'verify (user)',
       examples: 'verify',
@@ -22,13 +24,24 @@ class Verify extends Command {
 
   async run (message, args, data) {
     try {
-      const verifyRole = data.config.verifiedrole.role;
-      const userDiscord = await user.discord(message.author.id);
-      const userBasic = await user.basic(userDiscord.discord.userID);
-
-      if (verifyRole != null) message.member.roles.add(verifyRole);
-
-      message.member.setNickname(`${userBasic.name} [${userBasic.player_id}]`);
+      const member = args[0] ? await resolveMember({ message, search: args[0] }) : message.author;
+      const discordId = member ? member.id : null;
+      const verifyRole = data.config.Roles.Verified;
+      if (discordId) {
+        const userBasic = await user.basic(data.config, discordId, 30);
+        if (userBasic) {
+          if (verifyRole != null) message.member.roles.add(verifyRole);
+          message.member.setNickname(`${userBasic.name} [${userBasic.player_id}]`);
+          message.channel.send(`${member} has been assosiated with Torn player ${userBasic.name} [${userBasic.player_id}]`);
+        } else if (!userBasic) {
+          message.channel.send(`Unable to find a Torn profile asociated with discord user ${member}. Please make sure to link the discord profile to Torn.`);
+        }
+      } else if (args[0].toLowerCase() === 'all') {
+        verifyAll(this.client, message);
+        message.channel.send('verifying everyone triggered');
+      } else {
+        message.channel.send('Unable to find discord ID of the user. Please make sure you type the command correctly. See the help command for more information.');
+      }
     } catch (err) {
       this.client.logger.log(err, 'error');
     }

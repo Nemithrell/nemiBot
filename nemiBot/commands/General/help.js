@@ -4,7 +4,7 @@ const Discord = require('discord.js');
 class Help extends Command {
   constructor (client) {
     super(client, {
-      name: 'help',
+      name: 'Help',
       description: 'Show commands list or specific command help.',
       usage: 'help (command)',
       examples: 'help h',
@@ -21,7 +21,7 @@ class Help extends Command {
   }
 
   async run (message, args, data) {
-    const prefix = data.config.prefix;
+    const prefix = data.config.Prefix;
 
     // if a command is provided
     if (args[0]) {
@@ -60,7 +60,7 @@ class Help extends Command {
 
     commands.forEach((command) => {
       if (!categories.includes(command.help.category)) {
-        if (command.help.category === 'Owner' && message.author.id !== this.client.config.owner.id) {
+        if (command.help.category === 'Administration' && !message.channel.permissionsFor(message.member).has('MANAGE_GUILD')) {
           return;
         }
         categories.push(command.help.category);
@@ -73,10 +73,10 @@ class Help extends Command {
       .setDescription(`To get help on a specific command type "${prefix}help <command>"!`)
       .setColor(this.client.config.embed.color)
       .setFooter(this.client.config.embed.footer);
-    categories.sort().forEach((cat) => {
+    for (const cat of categories.sort()) {
       const tCommands = commands.filter((cmd) => cmd.help.category === cat);
       embed.addField(emojis.categories[cat.toLowerCase()] + ' ' + cat + ' - (' + tCommands.size + ')', tCommands.map((cmd) => '`' + cmd.help.name + '`').join(', '));
-    });
+    }
 
     embed.setAuthor(`${this.client.user.username} commands`);
     return message.channel.send(embed);

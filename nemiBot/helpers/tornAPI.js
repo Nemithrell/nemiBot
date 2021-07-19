@@ -1,34 +1,47 @@
 const fetch = require('node-fetch');
 const NodeCache = require('node-cache');
+const { RateLimiter } = require('limiter');
 const torndb = require('../db/torn.js');
 const yatadb = require('../db/yata.js');
 
-const cache = new NodeCache(3600);
+const cache = new NodeCache({ stdTTL: 3600 });
 const TORN_URL = 'https://api.torn.com/';
+const apiKeysLimiter = new Map();
 
-// yata db query to fetch list of api keys with faction access
-const apiQuery = `select a.value from player_key a
+async function getAPIKey (guildConfig) {
+  const apiQuery = `select a.value from player_key a
 inner join "faction_faction_masterKeys" b on a.id = b.key_id
 inner join faction_faction c on c.id = b.faction_id
-where c."tId" = 7709;`;
+where c."tId" = ${guildConfig.Faction.Id};`;
+  const cacheKey = `apiKeys${guildConfig.Faction.Id}`;
 
-async function getAPIKey () {
-  if (!cache.has('apiKeys')) {
-    cache.set('apiKeys', await yatadb.Query(apiQuery));
+  if (!cache.has(cacheKey)) {
+    cache.set(cacheKey, await yatadb.Query(apiQuery));
   }
-  const apiKeys = cache.get('apiKeys');
-  const key = apiKeys[Math.floor(Math.random() * apiKeys.length)].value;
-  return key;
+  const apiKeys = cache.get(cacheKey);
+  const key = apiKeys.shift();
+  apiKeys.push(key);
+  cache.set(cacheKey, apiKeys, cache.getTtl(cacheKey));
+  if (!apiKeysLimiter.has(key)) {
+    apiKeysLimiter.set(key, new RateLimiter({ tokensPerInterval: 50, interval: 60000 }));
+  }
+
+  const apiKeyLimiter = apiKeysLimiter.get(key);
+  if (apiKeyLimiter.tryRemoveTokens(1)) return key.value;
+  else throw Error('APIkey rate limited');
 }
 
 async function apiFetch (url) {
-  const response = await fetch(url);
-  return response.json();
+  try {
+    const response = await fetch(url);
+    if (response.status === 200) return response.json();
+    else throw Error(response.statusText);
+  } catch (err) { return err; }
 }
 
-async function makeRequest (endpoint, selection, persist, force, id = '') {
+async function makeRequest (guildConfig, endpoint, selection, persist, force, id, ttl) {
   const cacheKey = `${endpoint}${selection}${id}`;
-  const url = `${TORN_URL}${endpoint}/${id}?selections=${selection}&key=${await getAPIKey()}`;
+  const url = `${TORN_URL}${endpoint}/${id}?selections=${selection}&key=${await getAPIKey(guildConfig)}`;
   const cacheKeyQuery = `select result from tornapidata where apiquery = '${cacheKey}';`;
   const cacheKeyInsert = `insert into tornAPIdata (apiquery, result) values ('${cacheKey}', '$1')`;
 
@@ -40,14 +53,14 @@ async function makeRequest (endpoint, selection, persist, force, id = '') {
       // check if value is stored in DB
       const [{ result }] = await torndb.Query(cacheKeyQuery);
       if (result !== undefined) {
-        cache.set(cacheKey, result); // cache the returned result from DB.
+        cache.set(cacheKey, result, ttl); // cache the returned result from DB.
         return result;
       }
     }
   }
 
   const result = await apiFetch(url);
-  cache.set(cacheKey, result);
+  cache.set(cacheKey, result, ttl);
 
   if (persist) torndb.Query(cacheKeyInsert, [JSON.stringify(result)]);
 
@@ -55,35 +68,63 @@ async function makeRequest (endpoint, selection, persist, force, id = '') {
 }
 
 const user = {
-  discord: async (id) => { return await makeRequest('user', 'discord', false, true, id); },
-  basic: async (id) => { return await makeRequest('user', 'basic', false, false, id); }
+  discord: async (guildConfig, id, force, ttl = null) => { return makeRequest(guildConfig, 'user', 'discord', false, force, id, ttl); },
+  basic: async (guildConfig, id, ttl = null) => { return makeRequest(guildConfig, 'user', 'basic', false, false, id, ttl); },
+  profile: async (guildConfig, id, ttl = null) => { return makeRequest(guildConfig, 'user', 'profile', false, false, id, ttl); }
 };
 
 const properties = {
-  property: async () => { return await makeRequest('properties', 'property', false); }
+  property: async (guildConfig) => { return makeRequest(guildConfig, 'properties', 'property', false); }
 };
 
 const faction = {
-  applications: async () => { return await makeRequest('faction', 'applications', false); }
+  applications: async (guildConfig) => { return makeRequest(guildConfig, 'faction', 'applications', false, false, guildConfig.Faction.Id, 30); },
+  crimes: async (guildConfig) => { return makeRequest(guildConfig, 'faction', 'crimes', false, false, guildConfig.Faction.Id, 30); },
+  chain: async (guildConfig) => { return makeRequest(guildConfig, 'faction', 'chain,timestamp', false, false, guildConfig.Faction.Id, 10); }
 };
 
 const company = {
-  detailed: async () => { return await makeRequest('company', 'detailed', false); }
+  detailed: async (guildConfig) => { return makeRequest(guildConfig, 'company', 'detailed', false); }
 };
 
 const market = {
-  bazaar: async (itemId = null) => { return await makeRequest('market', 'bazaar', true, itemId); },
-  itemmarket: async (itemId = null) => { return await makeRequest('market', 'itemmarket', true, itemId); },
-  pointsmarket: async () => { return await makeRequest('market', 'pointsmarket', true); }
+  bazaar: async (guildConfig, itemId = null) => { return makeRequest(guildConfig, 'market', 'bazaar', true, itemId); },
+  itemmarket: async (guildConfig, itemId = null) => { return makeRequest(guildConfig, 'market', 'itemmarket', true, itemId); },
+  pointsmarket: async (guildConfig) => { return makeRequest(guildConfig, 'market', 'pointsmarket', true); }
 };
 
 const torn = {
-  items: async () => { return await makeRequest('torn', 'items', true); },
-  organisedcrimes: async () => { return await makeRequest('torn', 'organisedcrimes', true); },
-  rackets: async () => { return await makeRequest('torn', 'rackets', true); },
-  territory: async () => { return await makeRequest('torn', 'territory', true); },
-  territorywars: async () => { return await makeRequest('torn', 'territorywars', true); }
+  items: async (guildConfig) => { return makeRequest(guildConfig, 'torn', 'items', true); },
+  organisedcrimes: async (guildConfig) => { return makeRequest(guildConfig, 'torn', 'organisedcrimes', true); },
+  rackets: async (guildConfig) => { return makeRequest(guildConfig, 'torn', 'rackets', true); },
+  territory: async (guildConfig) => { return makeRequest(guildConfig, 'torn', 'territory', true); },
+  territorywars: async (guildConfig) => { return makeRequest(guildConfig, 'torn', 'territorywars', true); }
 };
+
+async function registerTornFaction (apiKey) {
+  const factionInfo = await apiFetch(`${TORN_URL}faction/?selections=basic&key=${apiKey}`);
+  const userInfo = await apiFetch(`${TORN_URL}user/?selections=basic&key=${apiKey}`);
+
+  if (!factionInfo.ID) {
+    return 'No faction was found connected to your Torn user profile.';
+  } else if (!userInfo.player_id) {
+    return 'No Torn user profile was found connected to your API key. Please veryfy you have entered the correct API Key.';
+  } else {
+    const apiQuery = `select a.value from player_key a
+inner join "faction_faction_masterKeys" b on a.id = b.key_id
+inner join faction_faction c on c.id = b.faction_id
+where c."tId" = ${factionInfo.ID};`;
+    const apiKeys = await yatadb.Query(apiQuery);
+
+    if (!apiKeys) {
+      return `Faction with id: ${factionInfo.ID} is not registered with any API Keys in the vulpes yata database. Please log in to the Vulpes Yata website to register your API key.`;
+    } else if (userInfo.player_id === factionInfo.leader || userInfo.player_id === factionInfo['co-leader']) {
+      return factionInfo.ID;
+    } else {
+      return `The Torn profile connected to your API Key is not the leader or co-leader of faction ${factionInfo.name}[${factionInfo.ID}]. Only the faction leader or co-leader are allowed to register a discord server with a faction.`;
+    }
+  }
+}
 
 module.exports = {
   user,
@@ -91,5 +132,6 @@ module.exports = {
   faction,
   company,
   market,
-  torn
+  torn,
+  registerTornFaction
 };

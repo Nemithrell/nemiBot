@@ -1,5 +1,5 @@
 # Commands  
-Here's the list of NemiBot commands. This one contains more than **00 commands** in **3 categories**!  
+Here's the list of NemiBot commands. This one contains more than **00 commands** in **4 categories**!  
 
 #### Contents of the table  
 **Name**: The name of the command  
@@ -7,19 +7,28 @@ Here's the list of NemiBot commands. This one contains more than **00 commands**
 **Usage**: The arguments/options that the command takes in parameters  
 **Cooldown**: The time that must elapse between each command so that it can be executed again by the user
 
+### Administration (5 commands)
+
+Name              Description                              Usage                              Cooldown
+**AddNPC**        administration/AddNPC:DESCRIPTION        administration/AddNPC:USAGE        5 seconds
+**RemoveNPC**     administration/RemoveNPC:DESCRIPTION     administration/RemoveNPC:USAGE     5 seconds
+**RoleReaction**  administration/RoleReaction:DESCRIPTION  administration/RoleReaction:USAGE  5 seconds
+**SetChannel**    administration/SetChannel:DESCRIPTION    administration/SetChannel:USAGE    5 seconds
+**SetRole**       administration/SetRole:DESCRIPTION       administration/SetRole:USAGE       5 seconds
+
 ### Torn (2 commands)
 
 Name        Description              Usage              Cooldown
-**loot**    torn/loot:DESCRIPTION    torn/loot:USAGE    5 seconds
-**verify**  torn/verify:DESCRIPTION  torn/verify:USAGE  5 seconds
-
-### Administration (1 commands)
-
-Name               Description                               Usage                               Cooldown
-**setverifyrole**  administration/setverifyrole:DESCRIPTION  administration/setverifyrole:USAGE  5 seconds
+**Loot**    torn/Loot:DESCRIPTION    torn/Loot:USAGE    5 seconds
+**Verify**  torn/Verify:DESCRIPTION  torn/Verify:USAGE  5 seconds
 
 ### General (1 commands)
 
 Name      Description               Usage               Cooldown
-**help**  general/help:DESCRIPTION  general/help:USAGE  5 seconds
+**Help**  general/Help:DESCRIPTION  general/Help:USAGE  5 seconds
+
+### Owner (1 commands)
+
+Name                    Description                           Usage                           Cooldown
+**ConnectTornFaction**  owner/ConnectTornFaction:DESCRIPTION  owner/ConnectTornFaction:USAGE  5 seconds
 

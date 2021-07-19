@@ -25,11 +25,11 @@ const db = new Pool({
 
 async function Query (query, params) {
   try {
-    db.connect();
+    await db.connect();
     const start = Date.now();
     const res = await db.query(query, params);
     const duration = Date.now() - start;
-    logger.log(`executed query, ${query}, ${duration}, rows: ${res.rowCount}`, 'log');
+    logger.log(`executed query, ${query}, ${duration}, rows: ${res.rowCount}`, 'debug');
     return res.rows;
   } catch (err) {
     logger.log(err.stack, 'error');

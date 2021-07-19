@@ -1,3 +1,5 @@
+
+const cmdCooldown = {};
 module.exports = class {
   constructor (client) {
     this.client = client;
@@ -17,7 +19,9 @@ module.exports = class {
     }
 
     const client = this.client;
-    if (message.guild) data.config = await client.guilddata.getGuildConfig(message.guild.id);
+    if (message.guild) {
+      data.config = await client.guilddata.getGuildConfig(message.guild.id);
+    }
 
     // Gets the prefix
     const prefix = await client.getPrefix(message, data);
@@ -30,7 +34,7 @@ module.exports = class {
       if (message.guild) {
         return message.sendMessage(`Hello ${message.author}, comand prefix is ${prefix}.`);
       } else {
-        return message.sendMessage(`Hello ${message.author}, as you are currently in direct message you don't need to add a prefix before command name.`);
+        return message.sendMessage(`Hello ${message.author}, as you are currently indirect message you don't need to add a prefix before command name.`);
       }
     }
 
@@ -65,6 +69,10 @@ module.exports = class {
         return message.error(`I need the following permissions to execute this command: ${list}`);
       }
 
+      if (cmd.conf.ownerOnly && !message.guild.is_owner(message.member)) {
+        return message.error('This command is only available to the guild owner!');
+      }
+
       neededPermissions = [];
       cmd.conf.memberPermissions.forEach((perm) => {
         if (!message.channel.permissionsFor(message.member).has(perm)) {
@@ -81,15 +89,26 @@ module.exports = class {
         return message.error('You must execute this command in a channel that allows NSFW!');
       }
 
+      let uCooldown = cmdCooldown[message.author.id];
+      if (!uCooldown) {
+        cmdCooldown[message.author.id] = {};
+        uCooldown = cmdCooldown[message.author.id];
+      }
+      const time = uCooldown[cmd.help.name] || 0;
+      if (time && (time > Date.now())) {
+        return message.error(`You must wait ${Math.ceil((time - Date.now()) / 1000)} second(s) to be able to run this command again!`);
+      }
+      cmdCooldown[message.author.id][cmd.help.name] = Date.now() + cmd.conf.cooldown;
+
       client.logger.log(`${message.author.username} (${message.author.id}) ran command ${cmd.help.name}`, 'cmd');
     }
     try {
       cmd.run(message, args, data);
-      if (cmd.help.category === 'Moderation' && client.config.autoDeleteModCommands) {
+      if (cmd.help.category === 'Administration' && client.config.autoDeleteModCommands) {
         message.delete();
       }
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      this.client.logger.log(err, 'error');
       return message.error('Something went wrong... Please retry again later!');
     }
   }

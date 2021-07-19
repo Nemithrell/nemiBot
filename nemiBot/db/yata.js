@@ -25,7 +25,7 @@ const db = new Pool({
 
 async function Query (query, params) {
   try {
-    db.connect();
+    await db.connect();
     const res = await db.query(query, params);
     return res.rows;
   } catch (err) {
