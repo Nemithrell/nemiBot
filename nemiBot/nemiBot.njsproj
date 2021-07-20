@@ -47,6 +47,7 @@
     <Content Include="commands\General\help.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="commands\Torn\startChainWatch.js" />
     <Content Include="commands\Torn\loot.js">
       <SubType>Code</SubType>
     </Content>

@@ -14,7 +14,7 @@ class Loot extends Command {
       aliases: ['npc'],
       memberPermissions: [],
       botPermissions: ['SEND_MESSAGES', 'EMBED_LINKS'],
-      factionMembersOnly: true,
+      factionMembersOnly: false,
       nsfw: false,
       ownerOnly: false,
       cooldown: 5000
