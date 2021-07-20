@@ -1,4 +1,4 @@
-const Command = require('../../base/Command.js');
+const Command = require('../../base/command.js');
 const { registerTornFaction } = require('../../helpers/tornAPI.js');
 
 class ConnectTornFaction extends Command {

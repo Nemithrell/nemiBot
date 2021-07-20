@@ -1,4 +1,4 @@
-const Command = require('../../base/Command.js');
+const Command = require('../../base/command.js');
 const { resolveMember } = require('../../helpers/resolvers.js');
 const { user } = require('../../helpers/tornAPI.js');
 const { verifyAll } = require('../../helpers/functions.js');

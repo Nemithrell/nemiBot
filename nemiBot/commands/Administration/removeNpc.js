@@ -1,4 +1,4 @@
-const Command = require('../../base/Command.js');
+const Command = require('../../base/command.js');
 
 class SetVerifyRole extends Command {
   constructor (client) {

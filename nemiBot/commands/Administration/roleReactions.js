@@ -1,4 +1,4 @@
-const Command = require('../../base/Command.js');
+const Command = require('../../base/command.js');
 const Discord = require('discord.js');
 const { resolveChannel } = require('../../helpers/resolvers.js');
 
