@@ -22,6 +22,7 @@ class ChainMonitoring extends Command {
 
   async run (message, args, data) {
     try {
+      if (args.length < 1) return message.error('Invalid argument supplied, allowed arguments is "start" or "stop". Please see help command for more information on how to use this command.');
       if (args[0].toLowerCase() === 'start') {
         await this.client.guilddata.setChainWatch(message.guild.id, true);
         return message.success('Chain monitoring started.');
