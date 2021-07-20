@@ -64,6 +64,9 @@ class Help extends Command {
         if (command.help.category === 'Administration' && !message.channel.permissionsFor(message.member).has('MANAGE_GUILD')) {
           return;
         }
+        if (command.help.category === 'Owner' && message.author.id !== message.guild.ownerID) {
+          return;
+        }
         categories.push(command.help.category);
       }
     });

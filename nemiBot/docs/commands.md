@@ -1,5 +1,5 @@
 # Commands  
-Here's the list of NemiBot commands. This one contains more than **00 commands** in **4 categories**!  
+Here's the list of NemiBot commands. This one contains more than **10 commands** in **4 categories**!  
 
 #### Contents of the table  
 **Name**: The name of the command  
@@ -16,11 +16,12 @@ Name              Description                              Usage                
 **SetChannel**    administration/SetChannel:DESCRIPTION    administration/SetChannel:USAGE    5 seconds
 **SetRole**       administration/SetRole:DESCRIPTION       administration/SetRole:USAGE       5 seconds
 
-### Torn (2 commands)
+### Torn (3 commands)
 
-Name        Description              Usage              Cooldown
-**Loot**    torn/Loot:DESCRIPTION    torn/Loot:USAGE    5 seconds
-**Verify**  torn/Verify:DESCRIPTION  torn/Verify:USAGE  5 seconds
+Name                 Description                       Usage                       Cooldown
+**Loot**             torn/Loot:DESCRIPTION             torn/Loot:USAGE             5 seconds
+**StartChainWatch**  torn/StartChainWatch:DESCRIPTION  torn/StartChainWatch:USAGE  5 seconds
+**Verify**           torn/Verify:DESCRIPTION           torn/Verify:USAGE           5 seconds
 
 ### General (1 commands)
 

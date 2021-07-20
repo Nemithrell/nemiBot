@@ -74,7 +74,7 @@ class SetRoles extends Command {
           reactMessage.react(emoji[1]);
         }
       }
-      return message.channel.send(`Role type: ${roleType} set to notify on channel ${role}`);
+      return message.channel.send(`Role type: ${roleType} set to notify the role: ${role.name}`);
     } catch (err) {
       this.client.logger.log(err, 'error');
     }
