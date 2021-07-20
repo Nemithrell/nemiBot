@@ -66,19 +66,19 @@
     <Content Include="emojis.json">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="events1\guildCreate.js">
+    <Content Include="events\guildCreate.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="events1\guildDelete.js">
+    <Content Include="events\guildDelete.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="events1\message.js">
+    <Content Include="events\message.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="events1\messageReactionRemove.js" />
-    <Content Include="events1\messageReactionAdd.js" />
-    <Content Include="events1\guildMemberAdd.js" />
-    <Content Include="events1\ready.js">
+    <Content Include="events\messageReactionRemove.js" />
+    <Content Include="events\messageReactionAdd.js" />
+    <Content Include="events\guildMemberAdd.js" />
+    <Content Include="events\ready.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="helpers\cron.js">
@@ -119,7 +119,7 @@
     <Folder Include="commands\Torn\" />
     <Folder Include="helpers\" />
     <Folder Include="commands\" />
-    <Folder Include="events1\" />
+    <Folder Include="events\" />
     <Folder Include="docs\" />
     <Folder Include="db\" />
   </ItemGroup>
