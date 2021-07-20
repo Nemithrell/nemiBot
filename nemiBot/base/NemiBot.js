@@ -7,7 +7,7 @@ class nemiBot extends Client {
   constructor (options) {
     super(options);
     this.config = require('../config'); // Load the config file
-    this.guilddata = require('../base/guild');
+    this.guilddata = require('./guild');
     this.customEmojis = require('../emojis.json'); // load the bot's emojis
     this.commands = new Collection(); // Creates new commands collection
     this.aliases = new Collection(); // Creates new command aliases collection

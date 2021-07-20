@@ -8,7 +8,7 @@ const myIntents = new Intents();
 myIntents.add('GUILD_MEMBERS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS', 'GUILDS', 'DIRECT_MESSAGES', 'GUILD_EMOJIS');
 
 // Load nemiBot class
-const NemiBot = require('./base/nemiBot');
+const NemiBot = require('./base/NemiBot.js');
 const client = new NemiBot({ ws: { intents: myIntents }, partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER'] });
 
 const init = async () => {
