@@ -41,6 +41,9 @@ paket-files/
 # Bot Configuration
 config.js
 
+# Command docs
+commands.md
+
 # Node modules
 node_modules
 package-lock.json
