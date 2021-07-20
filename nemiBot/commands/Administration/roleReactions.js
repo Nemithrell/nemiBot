@@ -54,15 +54,16 @@ class RoleReaction extends Command {
       if (enable && data.config.RoleReaction.Enabled) return message.error(`Role Reaction is already enabled and is tracking a message in ${await resolveChannel({ message, search: data.config.RoleReaction.Channel, channelType: 'text' })}. If you want to overwrite the configuration stored, please turn the feature off first and then on again.`);
 
       // Delete old tracked message if the command is to disable the feature.
-      if (!enable && data.config.RoleReaction.MessageId && data.config.RoleReaction.Channel) {
+      if (!enable) {
         try {
           const oldChannel = await resolveChannel({ message, search: data.config.RoleReaction.Channel, channelType: 'text' });
           const oldMessage = await oldChannel.messages.fetch(data.config.RoleReaction.MessageId);
           await oldMessage.delete();
-          return message.success('Role Reactions successfully disabled');
         } catch (err) {
           this.client.logger.log(err, 'error');
         }
+        await this.client.guilddata.setRoleReaction(message.guild.id, enable, channel, messageId);
+        return message.success('Role Reactions successfully disabled');
       }
       // Get emojis for all roles
       const emojis = this.client.customEmojis.Roles;

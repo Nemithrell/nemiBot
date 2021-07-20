@@ -147,7 +147,7 @@ on conflict (guildid, type) do update set data = EXCLUDED.data;`;
 
   async setRoleReaction (guildId, enable, channel, messageId) {
     const cacheKey = `${guildId}config`;
-    let strBuilder = `"Enabled": "${enable}"`;
+    let strBuilder = `"Enabled": ${enable}`;
     if (channel !== null) strBuilder += `, "Channel": "${channel}"`;
     if (messageId !== null) strBuilder += `, "MessageId": "${messageId}"`;
     const [{ data }] = await torndb.Query(`update guilddata set data = jsonb_set(data, '{RoleReaction}', data->'RoleReaction' || '{${strBuilder}}') where guildid = '${guildId}' and type = 'config' returning data;`);
