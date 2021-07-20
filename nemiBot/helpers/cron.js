@@ -42,6 +42,14 @@ async function run (client) {
       }
     }
   });
+
+  cron.schedule('* 2 * * *', () => {
+    for (const data of getData(client)) {
+      if (data.config.Faction.Id) {
+        functions.verifyAll(client, data);
+      }
+    }
+  });
 }
 
 module.exports = { run };
