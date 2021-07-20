@@ -36,7 +36,7 @@
     <Content Include="base\guild.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="base\nemiBot1.js">
+    <Content Include="base\nemiBot.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="commands\Administration\roleReactions.js" />
