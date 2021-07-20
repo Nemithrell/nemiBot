@@ -38,7 +38,7 @@ class SetRoles extends Command {
         return message.error('Unable to find the mentioned role. Please make sure you have typed correctly. you can find more info in the help command');
       }
       let updateRoleReactions = false;
-      if (!data.config.Roles[roleType]) updateRoleReactions = true;
+      if (!data.config.Roles[roleType] && data.config.RoleReaction.Enabled) updateRoleReactions = true;
       data.config = await this.client.guilddata.setRoles(message.guild.id, roleType, role.id);
 
       if (updateRoleReactions) {
