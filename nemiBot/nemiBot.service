@@ -3,7 +3,7 @@ Description=nemiBot
 After=network.target
 
 [Service]
-WorkingDirectory=/opt/nemiBot/
+WorkingDirectory=/opt/nemiBot/nemiBot/
 ExecStart=/usr/bin/node nemiBot.js
 
 [Install]
