@@ -97,7 +97,7 @@
     <Content Include="config.sample.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="helpers\autoUpdateDocs1.js">
+    <Content Include="helpers\autoUpdateDocs.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="helpers\extenders.js">
