@@ -5,6 +5,7 @@ const config = require('../config');
 const cache = new NodeCache({ stdTTL: 3600 });
 
 const guildConfig = {
+  SchemaVersion: 0.1,
   Prefix: config.prefix,
   Faction: {
     Id: null
@@ -28,7 +29,8 @@ const guildConfig = {
     Rackets: null, // The role to notify about racket events
     Crime: null, // The role to notify about organized crime events
     NotInFaction: null, // The role to notify about guild members not in torn faction
-    Chain: null // The role to notify about chain time
+    Chain: null, // The role to notify about chain time
+    FactionMembers: null // The role assigned to members in faction
   },
   // Automatic messaging channels
   Channels: {
@@ -40,7 +42,8 @@ const guildConfig = {
     Quiz: null,
     Chain: null,
     OcPayout: null,
-    GiveAway: null
+    GiveAway: null,
+    BotEventLogger: null
   },
   ChainWatch: {
     Enabled: false

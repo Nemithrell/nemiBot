@@ -11,6 +11,7 @@
     "discord.js": "^12.5.3",
     "limiter": "^2.1.0",
     "node-cache": "^5.1.2",
+    "node-cron": "^3.0.0",
     "node-fetch": "^2.6.1",
     "pg": "^8.6.0",
     "pretty-ms": "^7.0.1",

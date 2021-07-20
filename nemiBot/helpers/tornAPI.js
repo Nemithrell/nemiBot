@@ -40,6 +40,7 @@ async function apiFetch (url) {
 }
 
 async function makeRequest (guildConfig, endpoint, selection, persist, force, id, ttl) {
+  if (!guildConfig.Faction.Id) throw Error('No connection to a Torn Faction. Torn API requests is not allowed until you connect your guild to a Torn faction.');
   const cacheKey = `${endpoint}${selection}${id}`;
   const url = `${TORN_URL}${endpoint}/${id}?selections=${selection}&key=${await getAPIKey(guildConfig)}`;
   const cacheKeyQuery = `select result from tornapidata where apiquery = '${cacheKey}';`;

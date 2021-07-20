@@ -16,6 +16,7 @@ class Verify extends Command {
       aliases: ['v'],
       memberPermissions: [],
       botPermissions: ['SEND_MESSAGES', 'EMBED_LINKS'],
+      factionMembersOnly: false,
       nsfw: false,
       ownerOnly: false,
       cooldown: 5000
@@ -30,14 +31,14 @@ class Verify extends Command {
       if (discordId) {
         const userBasic = await user.basic(data.config, discordId, 30);
         if (userBasic) {
-          if (verifyRole != null) message.member.roles.add(verifyRole);
-          message.member.setNickname(`${userBasic.name} [${userBasic.player_id}]`);
+          if (verifyRole != null && !message.member.roles.cache.has(verifyRole.id)) message.member.roles.add(verifyRole);
+          if (message.member.displayName !== `${userBasic.name} [${userBasic.player_id}]`) message.member.setNickname(`${userBasic.name} [${userBasic.player_id}]`);
           message.channel.send(`${member} has been assosiated with Torn player ${userBasic.name} [${userBasic.player_id}]`);
         } else if (!userBasic) {
           message.channel.send(`Unable to find a Torn profile asociated with discord user ${member}. Please make sure to link the discord profile to Torn.`);
         }
       } else if (args[0].toLowerCase() === 'all') {
-        verifyAll(this.client, message);
+        verifyAll(this.client, data);
         message.channel.send('verifying everyone triggered');
       } else {
         message.channel.send('Unable to find discord ID of the user. Please make sure you type the command correctly. See the help command for more information.');

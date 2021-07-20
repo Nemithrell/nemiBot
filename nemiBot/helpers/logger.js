@@ -2,6 +2,7 @@
 Logger class for easy and aesthetically pleasing console logging
 */
 const { bgBlue, black, green } = require('chalk');
+const config = require('../config');
 
 function dateTimePad (value, digits) {
   let number = value;
@@ -36,7 +37,8 @@ module.exports = class Logger {
         return console.log(`${date} ${black.bgRed(type.toUpperCase())} ${content} `);
       }
       case 'debug': {
-        return console.log(`${date} ${green(type.toUpperCase())} ${content} `);
+        if (config.debugMode) return console.log(`${date} ${green(type.toUpperCase())} ${content} `);
+        else return;
       }
       case 'cmd': {
         return console.log(`${date} ${black.bgWhite(type.toUpperCase())} ${content}`);

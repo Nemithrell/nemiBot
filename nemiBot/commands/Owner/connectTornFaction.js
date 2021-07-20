@@ -14,6 +14,7 @@ class ConnectTornFaction extends Command {
       aliases: [],
       memberPermissions: ['MANAGE_GUILD'],
       botPermissions: ['SEND_MESSAGES', 'EMBED_LINKS'],
+      factionMembersOnly: false,
       nsfw: false,
       ownerOnly: true,
       cooldown: 5000

@@ -77,7 +77,11 @@
     </Content>
     <Content Include="Events\messageReactionRemove.js" />
     <Content Include="Events\messageReactionAdd.js" />
+    <Content Include="Events\guildMemberAdd.js" />
     <Content Include="Events\ready.js">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="helpers\cron.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="helpers\functions.js">

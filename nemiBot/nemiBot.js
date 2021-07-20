@@ -5,7 +5,7 @@ const fs = require('fs');
 const readdir = util.promisify(fs.readdir);
 
 const myIntents = new Intents();
-myIntents.add('GUILD_MEMBERS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS', 'GUILDS', 'DIRECT_MESSAGES', 'GUILD_EMOJIS', Intents.NON_PRIVILEGED);
+myIntents.add('GUILD_MEMBERS', 'GUILD_MESSAGES', 'GUILD_MESSAGE_REACTIONS', 'GUILDS', 'DIRECT_MESSAGES', 'GUILD_EMOJIS');
 
 // Load nemiBot class
 const NemiBot = require('./base/nemiBot');

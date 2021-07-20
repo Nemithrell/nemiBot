@@ -14,6 +14,7 @@ class SetRoles extends Command {
       aliases: ['sr'],
       memberPermissions: ['MANAGE_GUILD'],
       botPermissions: ['SEND_MESSAGES', 'EMBED_LINKS'],
+      factionMembersOnly: false,
       nsfw: false,
       ownerOnly: false,
       cooldown: 5000

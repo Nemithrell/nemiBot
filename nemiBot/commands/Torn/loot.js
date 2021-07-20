@@ -14,6 +14,7 @@ class Loot extends Command {
       aliases: ['npc'],
       memberPermissions: [],
       botPermissions: ['SEND_MESSAGES', 'EMBED_LINKS'],
+      factionMembersOnly: true,
       nsfw: false,
       ownerOnly: false,
       cooldown: 5000
@@ -22,7 +23,7 @@ class Loot extends Command {
 
   async run (message, args, data) {
     try {
-      const msgArray = await checkNpc(this.client, message);
+      const msgArray = await checkNpc(this.client, data);
 
       for (const msg of msgArray) {
         message.channel.send(msg);

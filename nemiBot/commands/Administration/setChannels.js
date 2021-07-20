@@ -14,6 +14,7 @@ class SetChannels extends Command {
       aliases: ['setchannel', 'sc'],
       memberPermissions: ['MANAGE_GUILD'],
       botPermissions: ['SEND_MESSAGES', 'EMBED_LINKS'],
+      factionMembersOnly: false,
       nsfw: false,
       ownerOnly: false,
       cooldown: 5000

@@ -1,6 +1,7 @@
 module.exports = {
   /* The token of your Discord Bot */
   token: '',
+  debugMode: true,
   autoDeleteModCommands: true,
   prefix: '!',
   embed: {

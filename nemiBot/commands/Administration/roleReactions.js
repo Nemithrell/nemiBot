@@ -15,6 +15,7 @@ class RoleReaction extends Command {
       aliases: ['RR', 'React'],
       memberPermissions: ['MANAGE_GUILD'],
       botPermissions: ['SEND_MESSAGES', 'EMBED_LINKS'],
+      factionMembersOnly: false,
       nsfw: false,
       ownerOnly: false,
       cooldown: 5000
@@ -27,7 +28,9 @@ class RoleReaction extends Command {
       let channel = null;
       let messageId = null;
 
+      // Check for correct number of arguments supplied
       if (args.length < 1 && args.length > 2) return message.error('Invalid number of arguments supplied.See help command for information on how to use this command.');
+      // Set variables based on argument supplied. Off to disable feature, On to enable feature.
       switch (args[0].toLowerCase()) {
         case 'off':
           enable = false;
@@ -40,37 +43,58 @@ class RoleReaction extends Command {
         default:
           return message.error('The "enable" argument does not contain either on or off. Please make sure you have typed correctly.');
       }
+
+      // If 2 arguments are supplied we resolve the 2nd one to a channel
       if (args.length === 2) channel = await resolveChannel({ message, search: args[1].toLowerCase(), channelType: 'text' });
+
+      // Return an error message if we are unable to find the mentioned channel in second argument.
       if (!channel && enable) return message.error(`Unable to find the mentioned channel ${args[1]}, please make sure you have typed correctly`);
 
-      if (channel) {
-        const emojis = this.client.customEmojis.Roles;
+      // Return an error if the command was for enabling the feature and it is already enabled.
+      if (enable && data.config.RoleReaction.Enabled) return message.error(`Role Reaction is already enabled and is tracking a message in ${await resolveChannel({ message, search: data.config.RoleReaction.Channel, channelType: 'text' })}. If you want to overwrite the configuration stored, please turn the feature off first and then on again.`);
 
-        const roleDescription = {
-          NPC: 'Notify about NPC loot level',
-          Territory: 'Notify about territory events',
-          Rackets: 'Notify about racket events',
-          Crime: 'Notify about organized crime events',
-          Chain: 'Notify about chain timeouts'
-        };
-
-        const embed = new Discord.MessageEmbed()
-          .setDescription('You will receive a ping when events occur if you assign yourself the applicable role. To assign yourself a role, please react with one of the reactions below.')
-          .setColor(this.client.config.embed.color)
-          .setFooter(this.client.config.embed.footer);
-        const reactionEmoji = (Object.entries(data.config.Roles)).filter(([k, v]) => v != null).map(([k, v]) => [k, emojis[k]]);
-        for (const emoji of reactionEmoji) {
-          embed.addField(`${emoji[0]}: ${roleDescription[emoji[0]]}`, `React with: ${emoji[1]}`);
-        }
-
-        embed.setAuthor(`${this.client.user.username} Automatic role assignment with reactions.`);
-        const reactMessage = await channel.send(embed);
-        messageId = reactMessage.id;
-        for (const emoji of reactionEmoji) {
-          reactMessage.react(emoji[1]);
+      // Delete old tracked message if the command is to disable the feature.
+      if (!enable && data.config.RoleReaction.MessageId && data.config.RoleReaction.Channel) {
+        try {
+          const oldChannel = await resolveChannel({ message, search: data.config.RoleReaction.Channel, channelType: 'text' });
+          const oldMessage = await oldChannel.messages.fetch(data.config.RoleReaction.MessageId);
+          await oldMessage.delete();
+          return message.success('Role Reactions successfully disabled');
+        } catch (err) {
+          this.client.logger.log(err, 'error');
         }
       }
+      // Get emojis for all roles
+      const emojis = this.client.customEmojis.Roles;
+      // set description for roles
+      const roleDescription = {
+        NPC: 'Notify about NPC loot level',
+        Territory: 'Notify about territory events',
+        Rackets: 'Notify about racket events',
+        Crime: 'Notify about organized crime events',
+        Chain: 'Notify about chain timeouts'
+      };
 
+      // Create the embedded message to be sent when enabling the feature.
+      const embed = new Discord.MessageEmbed()
+        .setDescription('You will receive a ping when events occur if you assign yourself the applicable role. To assign yourself a role, please react with one of the reactions below.')
+        .setColor(this.client.config.embed.color)
+        .setFooter(this.client.config.embed.footer)
+        .setAuthor(`${this.client.user.username} Automatic role assignment with reactions.`);
+      const reactionEmoji = (Object.entries(data.config.Roles)).filter(([k, v]) => v != null).map(([k, v]) => [k, emojis[k]]).filter(([k, v]) => v !== undefined);
+      // Add 1 field for each role enabled.
+      for (const emoji of reactionEmoji) {
+        embed.addField(`${emoji[0]}: ${roleDescription[emoji[0]]}`, `React with: ${emoji[1]}`);
+      }
+
+      // Send the embedded message in the mentioned channel and react with all the applicable reactions.
+      const reactMessage = await channel.send(embed);
+      messageId = reactMessage.id;
+      for (const emoji of reactionEmoji) {
+        reactMessage.react(emoji[1]);
+      }
+
+      // Store the configuration
       await this.client.guilddata.setRoleReaction(message.guild.id, enable, channel, messageId);
     } catch (err) {
       this.client.logger.log(err, 'error');

@@ -14,6 +14,7 @@ class Help extends Command {
       aliases: ['aide', 'h', 'commands'],
       memberPermissions: [],
       botPermissions: ['SEND_MESSAGES', 'EMBED_LINKS'],
+      factionMembersOnly: false,
       nsfw: false,
       ownerOnly: false,
       cooldown: 5000

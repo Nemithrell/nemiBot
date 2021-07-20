@@ -1,3 +1,4 @@
+const { resolveRole } = require('../helpers/resolvers');
 
 const cmdCooldown = {};
 module.exports = class {
@@ -20,7 +21,9 @@ module.exports = class {
 
     const client = this.client;
     if (message.guild) {
+      data.guild = message.guild;
       data.config = await client.guilddata.getGuildConfig(message.guild.id);
+      data.npcConfig = await client.guilddata.getNpcConfig(message.guild.id);
     }
 
     // Gets the prefix
@@ -71,6 +74,10 @@ module.exports = class {
 
       if (cmd.conf.ownerOnly && !message.guild.is_owner(message.member)) {
         return message.error('This command is only available to the guild owner!');
+      }
+
+      if (cmd.conf.factionMembersOnly && !message.member.roles.cache.has((await resolveRole({ message, search: data.config.Roles.FactionMembers })).id)) {
+        return message.error('This command is only available to the Faction members!');
       }
 
       neededPermissions = [];
