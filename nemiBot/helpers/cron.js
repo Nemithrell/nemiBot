@@ -18,38 +18,45 @@ async function getData (client) {
 
 async function run (client) {
   this.client = client;
-
-  cron.schedule('*/2 * * * *', () => {
-    for (const data of getData(client)) {
-      if (data.config.Faction.Id) {
-        functions.checkNpc(client, data);
+  try {
+    cron.schedule('*/2 * * * *', async () => {
+      for (const data of await getData(client)) {
+        if (data.config.Faction.Id) {
+          functions.checkNpc(client, data);
+        }
       }
-    }
-  });
+    });
+  } catch (error) { client.logger.log(error, 'error'); }
 
-  cron.schedule('*/5 * * * *', () => {
-    for (const data of getData(client)) {
-      if (data.config.Faction.Id) {
-        functions.checkOC(client, data);
+  try {
+    cron.schedule('*/5 * * * *', async () => {
+      for (const data of await getData(client)) {
+        if (data.config.Faction.Id) {
+          functions.checkOC(client, data);
+        }
       }
-    }
-  });
+    });
+  } catch (error) { client.logger.log(error, 'error'); }
 
-  cron.schedule('* * * * *', () => {
-    for (const data of getData(client)) {
-      if (data.config.Faction.Id) {
-        functions.checkChain(client, data);
+  try {
+    cron.schedule('*/10 * * * * *', async () => {
+      for (const data of await getData(client)) {
+        if (data.config.Faction.Id) {
+          functions.checkChain(client, data);
+        }
       }
-    }
-  });
+    });
+  } catch (error) { client.logger.log(error, 'error'); }
 
-  cron.schedule('* 2 * * *', () => {
-    for (const data of getData(client)) {
-      if (data.config.Faction.Id) {
-        functions.verifyAll(client, data);
+  try {
+    cron.schedule('* 2 * * *', async () => {
+      for (const data of await getData(client)) {
+        if (data.config.Faction.Id) {
+          functions.verifyAll(client, data);
+        }
       }
-    }
-  });
+    });
+  } catch (error) { client.logger.log(error, 'error'); }
 }
 
 module.exports = { run };

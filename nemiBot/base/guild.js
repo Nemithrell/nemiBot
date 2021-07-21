@@ -140,7 +140,7 @@ on conflict (guildid, type) do update set data = EXCLUDED.data;`;
 
   async setChainWatch (guildId, enable) {
     const cacheKey = `${guildId}config`;
-    const [{ data }] = await torndb.Query(`update guilddata set data = jsonb_set(data, '{"ChainWatch", "Enabled"}', '"${enable}"') where guildid = '${guildId}' and type = 'config' returning data;`);
+    const [{ data }] = await torndb.Query(`update guilddata set data = jsonb_set(data, '{"ChainWatch", "Enabled"}', '${enable}') where guildid = '${guildId}' and type = 'config' returning data;`);
     cache.set(cacheKey, data);
     return data;
   },

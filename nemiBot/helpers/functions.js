@@ -95,7 +95,7 @@ module.exports = {
           .addField('The Chain hit counter is: ', chain.chain.current, true);
         chainChannel.send(embed);
       }
-      if (chain.chain.cooldown !== 0) client.guilddata.setChainWatch(data.guild.id, false);
+      if (chain.chain.cooldown !== 0 || chain.chain.current === 0) client.guilddata.setChainWatch(data.guild.id, false);
     }
   },
 
