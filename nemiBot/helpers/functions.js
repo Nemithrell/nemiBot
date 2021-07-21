@@ -62,7 +62,7 @@ module.exports = {
         if (ocChannel && cache.get(cacheKey) === undefined) {
           sendMessage = true;
         }
-        cache.set(cacheKey, true);
+        cache.set(cacheKey, true, 3600);
       }
       if (sendMessage) {
         if (ocRole) ocChannel.send(`${ocRole}`);
