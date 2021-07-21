@@ -4,6 +4,7 @@ const prettyMS = require('pretty-ms');
 const NodeCache = require('node-cache');
 
 const cache = new NodeCache({ stdTTL: 180 });
+let chainApiError = false;
 
 module.exports = {
   async checkNpc (client, data) {
@@ -75,27 +76,41 @@ module.exports = {
 
   async checkChain (client, data) {
     if (data.config.Channels.Chain && data.config.ChainWatch.Enabled) {
-      const [chainChannel, chainRole] = await Promise.all([data.guild.channels.cache.get(data.config.Channels.Chain), data.guild.roles.cache.get(data.config.Roles.Chain)]);
+      try {
+        const [chainChannel, chainRole] = await Promise.all([data.guild.channels.cache.get(data.config.Channels.Chain), data.guild.roles.cache.get(data.config.Roles.Chain)]);
 
-      const chain = await faction.chain(data.config);
-      let sendMessage = false;
-      let chainTimer = 0;
+        const chain = await faction.chain(data.config);
+        if (chain && chainApiError) {
+          chainApiError = false;
+          if (chainRole) chainChannel.send(`${chainRole}`);
+          if (chainChannel) chainChannel.error('Torn Api is back online. Chain is being monitored.');
+        }
+        let sendMessage = false;
+        let chainTimer = 0;
 
-      const cacheKey = `GuildID${data.guild.id}chaintimestamp${chain.timestamp}`;
-      if (chainChannel && cache.get(cacheKey) === undefined) {
-        sendMessage = true;
-        chainTimer = isNaN(parseInt(chain.chain.timeout)) ? 0 : parseInt(chain.chain.timeout) - ((new Date()).getTime() / 1000) - chain.timestamp;
+        const cacheKey = `GuildID${data.guild.id}chaintimestamp${chain.timestamp}`;
+        if (chainChannel && cache.get(cacheKey) === undefined) {
+          sendMessage = true;
+          chainTimer = isNaN(parseInt(chain.chain.timeout)) ? 0 : parseInt(chain.chain.timeout) - ((new Date()).getTime() / 1000) - chain.timestamp;
+        }
+        cache.set(cacheKey, true, 30);
+        if (sendMessage && (chainTimer > 0 && chainTimer <= 90)) {
+          if (chainRole) chainChannel.send(`${chainRole}`);
+          const embed = new Discord.MessageEmbed()
+            .setColor(client.config.embed.color)
+            .setAuthor(`The chain is about to time out in ${prettyMS(chainTimer * 1000, { secondsDecimalDigits: 0 })}. Please make a hit.`, 'https://www.torn.com/images/items/399/large.png', 'https://www.torn.com/')
+            .addField('The Chain hit counter is: ', chain.chain.current, true);
+          chainChannel.send(embed);
+        }
+        if (chain.chain.cooldown !== 0 || chain.chain.current === 0) client.guilddata.setChainWatch(data.guild.id, false);
+      } catch (error) {
+        if (!chainApiError) {
+          chainApiError = true;
+          const [chainChannel, chainRole] = await Promise.all([data.guild.channels.cache.get(data.config.Channels.Chain), data.guild.roles.cache.get(data.config.Roles.Chain)]);
+          if (chainRole) chainChannel.send(`${chainRole}`);
+          if (chainChannel) chainChannel.error('Torn Api Error. Please monitor chan manually.');
+        }
       }
-      cache.set(cacheKey, true, 30);
-      if (sendMessage && (chainTimer > 0 && chainTimer <= 90)) {
-        if (chainRole) chainChannel.send(`${chainRole}`);
-        const embed = new Discord.MessageEmbed()
-          .setColor(client.config.embed.color)
-          .setAuthor(`The chain is about to time out in ${prettyMS(chainTimer * 1000, { secondsDecimalDigits: 0 })}. Please make a hit.`, 'https://www.torn.com/images/items/399/large.png', 'https://www.torn.com/')
-          .addField('The Chain hit counter is: ', chain.chain.current, true);
-        chainChannel.send(embed);
-      }
-      if (chain.chain.cooldown !== 0 || chain.chain.current === 0) client.guilddata.setChainWatch(data.guild.id, false);
     }
   },
 
