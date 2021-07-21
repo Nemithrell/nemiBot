@@ -12,7 +12,7 @@ module.exports = {
 * @param {String} query Querystring
 * @param {Array} params Array of paramters for the query (empty array for none)
 */
-const db = new Pool({
+const pool = new Pool({
   user: dbconfig.user,
   host: dbconfig.host,
   database: dbconfig.database,
@@ -24,7 +24,7 @@ const db = new Pool({
 });
 
 async function Query (query, params) {
-  await db.connect();
+  const db = await pool.connect();
   try {
     const start = Date.now();
     const res = await db.query(query, params);
