@@ -19,7 +19,7 @@ async function getData (client) {
 async function run (client) {
   this.client = client;
   try {
-    cron.schedule('*/2 * * * *', async () => {
+    cron.schedule('*/30 * * * * *', async () => {
       for (const data of await getData(client)) {
         if (data.config.Faction.Id) {
           functions.checkNpc(client, data);
