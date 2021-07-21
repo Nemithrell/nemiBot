@@ -24,8 +24,8 @@ const db = new Pool({
 });
 
 async function Query (query, params) {
+  await db.connect();
   try {
-    await db.connect();
     const start = Date.now();
     const res = await db.query(query, params);
     const duration = Date.now() - start;
@@ -33,5 +33,7 @@ async function Query (query, params) {
     return res.rows;
   } catch (err) {
     logger.log(err.stack, 'error');
+  } finally {
+    db.release();
   }
 }

@@ -24,11 +24,16 @@ const db = new Pool({
 });
 
 async function Query (query, params) {
+  await db.connect();
   try {
-    await db.connect();
+    const start = Date.now();
     const res = await db.query(query, params);
+    const duration = Date.now() - start;
+    logger.log(`executed query, ${query}, ${duration}, rows: ${res.rowCount}`, 'debug');
     return res.rows;
   } catch (err) {
     logger.log(err.stack, 'error');
+  } finally {
+    db.release();
   }
 }
