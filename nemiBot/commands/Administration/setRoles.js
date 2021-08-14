@@ -6,7 +6,7 @@ class SetRoles extends Command {
   constructor (client) {
     super(client, {
       name: 'SetRole',
-      description: `Set the role to be assigned to a role type. If no role is set for the verify command then !verify will only set a users nickname. The available role types are: ${Object.keys(client.guilddata.guildConfig.Roles).map((k) => k).join(', ')}`,
+      description: `Set the role to be assigned to a role type. If no role is set for the verify command then !verify will only set a users nickname. The available role types are: ${Object.keys(client.guilddata.guildConfigData.Roles).map((k) => k).join(', ')}`,
       usage: 'SetRole RoleType (role)',
       examples: 'SetRole Crime @test',
       dirname: __dirname,
@@ -39,7 +39,7 @@ class SetRoles extends Command {
       }
       let updateRoleReactions = false;
       if (!data.config.Roles[roleType] && data.config.RoleReaction.Enabled) updateRoleReactions = true;
-      data.config = await this.client.guilddata.setRoles(message.guild.id, roleType, role.id);
+      data.config = await this.client.guilddata.guildConfig.setRoles(message.guild.id, roleType, role.id);
 
       if (updateRoleReactions) {
         const reactChannel = await Resolvers.resolveChannel({ message, search: data.config.RoleReaction.Channel, channelType: 'text' });

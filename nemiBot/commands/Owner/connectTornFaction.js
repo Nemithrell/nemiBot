@@ -33,7 +33,7 @@ class ConnectTornFaction extends Command {
         const factionId = await registerTornFaction(args[1]);
 
         if (!isNaN(parseInt(factionId))) {
-          const guildConfig = await this.client.guilddata.setTornFaction(args[0], factionId);
+          const guildConfig = await this.client.guilddata.guildConfig.setTornFaction(args[0], factionId);
           return message.success(`Guild successfully registered with faction ${guildConfig.Faction.Id}`);
         } else {
           return message.error(factionId);

@@ -22,8 +22,8 @@ module.exports = class {
     const client = this.client;
     if (message.guild) {
       data.guild = message.guild;
-      data.config = await client.guilddata.getGuildConfig(message.guild.id);
-      data.npcConfig = await client.guilddata.getNpcConfig(message.guild.id);
+      data.config = await client.guilddata.guildConfig.getGuildConfig(message.guild.id);
+      data.npcConfig = await client.guilddata.npcConfig.getNpcConfig(message.guild.id);
     }
 
     // Gets the prefix
@@ -72,7 +72,7 @@ module.exports = class {
         return message.error(`I need the following permissions to execute this command: ${list}`);
       }
 
-      if (cmd.conf.ownerOnly && !message.guild.is_owner(message.member)) {
+      if (cmd.conf.ownerOnly && message.guild.ownerID !== message.member.id) {
         return message.error('This command is only available to the guild owner!');
       }
 
@@ -111,7 +111,7 @@ module.exports = class {
     }
     try {
       cmd.run(message, args, data);
-      if (cmd.help.category === 'Administration' && client.config.autoDeleteModCommands) {
+      if (cmd.help.category === 'Administration' && data.config ? data.config.autoDeleteModCommands : client.config.autoDeleteModCommands) {
         message.delete();
       }
     } catch (err) {

@@ -62,7 +62,7 @@ class RoleReaction extends Command {
         } catch (err) {
           this.client.logger.log(err, 'error');
         }
-        await this.client.guilddata.setRoleReaction(message.guild.id, enable, channel, messageId);
+        await this.client.guilddata.guildConfig.setRoleReaction(message.guild.id, enable, channel, messageId);
         return message.success('Role Reactions successfully disabled');
       }
       // Get emojis for all roles
@@ -96,7 +96,7 @@ class RoleReaction extends Command {
       }
 
       // Store the configuration
-      await this.client.guilddata.setRoleReaction(message.guild.id, enable, channel, messageId);
+      await this.client.guilddata.guildConfig.setRoleReaction(message.guild.id, enable, channel, messageId);
     } catch (err) {
       this.client.logger.log(err, 'error');
     }

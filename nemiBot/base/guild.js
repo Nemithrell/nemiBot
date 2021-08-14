@@ -4,7 +4,7 @@ const config = require('../config');
 
 const cache = new NodeCache({ stdTTL: 3600 });
 
-const guildConfig = {
+const guildConfigData = {
   SchemaVersion: 0.1,
   Prefix: config.prefix,
   Faction: {
@@ -56,44 +56,63 @@ const guildConfig = {
   autoDeleteModCommands: true
 };
 
-const npcConfig = {
+const npcConfigData = {
   ids: [4, 15, 19, 20]
 };
 
-module.exports = {
-  guildConfig,
-  npcConfig,
-  // create guild data in database
-  async creatGuild (guildId) {
-    const guildConfigQuery = `insert into guilddata (guildid, type, data) 
-values (${guildId}, 'config', '${JSON.stringify(guildConfig)}')
-on conflict (guildid, type) do nothing;`;
+async function updateGuildConfig (jsonb, guildId) {
+  const cacheKey = `${guildId}config`;
+  const [{ data }] = await torndb.Query(`update guilddata set data = jsonb_set(data, ${jsonb}) where guildid = '${guildId}' and type = 'config' returning data;`);
+  cache.set(cacheKey, data);
+  return data;
+}
 
-    const npcQuery = `insert into guilddata (guildid, type, data) 
-values (${guildId}, 'npc', '${JSON.stringify(npcConfig)}')
-on conflict (guildid, type) do nothing;`;
-
-    await Promise.all([torndb.Query(guildConfigQuery), torndb.Query(npcQuery)]);
-    cache.set(`${guildId}config}`, JSON.stringify(guildConfig));
-    cache.set(`${guildId}npc}`, JSON.stringify(npcConfig));
-  },
-
-  async deleteGuild (guildId) {
-    const guildConfigQuery = `delete from guilddata where guildid = '${guildId}' and type = 'config'`;
-    const npcQuery = `delete from guilddata where guildid = '${guildId}' and type = 'npc'`;
-
-    await Promise.all([torndb.Query(guildConfigQuery), torndb.Query(npcQuery)]);
-    cache.del(`${guildId}config}`);
-    cache.del(`${guildId}npc}`);
-  },
-
-  async setTornFaction (guildId, factionId) {
+const guildConfig = {
+  getGuildConfig: async (guildId) => {
     const cacheKey = `${guildId}config`;
-    const [{ data }] = await torndb.Query(`update guilddata set data = jsonb_set(data, '{"Faction", "Id"}', '"${factionId}"') where guildid = '${guildId}' and type = 'config' returning data;`);
+    if (cache.has(cacheKey)) return cache.get(cacheKey);
+
+    const [{ data }] = await torndb.Query(`select data from guilddata where guildid = '${guildId}' and type = 'config';`);
     cache.set(cacheKey, data);
     return data;
   },
-  async getNpcConfig (guildId) {
+
+  setTornFaction: async (guildId, factionId) => {
+    const data = `'{"Faction", "Id"}', '${factionId}'`;
+    return await updateGuildConfig(data, guildId);
+  },
+
+  setRoles: async (guildId, role, roleID) => {
+    const data = `'{"Roles", "${role}"}', '${roleID}'`;
+    return await updateGuildConfig(data, guildId);
+  },
+
+  setChannels: async (guildId, channel, channelID) => {
+    const data = `'{"Channels","${channel}"}', '${channelID}'`;
+    return await updateGuildConfig(data, guildId);
+  },
+
+  setChainWatch: async (guildId, enable) => {
+    const data = `'{"ChainWatch", "Enabled"}', '${enable}'`;
+    return await updateGuildConfig(data, guildId);
+  },
+
+  setDeleteModCommands: async (guildId, enable) => {
+    const data = `'{"autoDeleteModCommands"}', '${enable}'`;
+    return await updateGuildConfig(data, guildId);
+  },
+
+  setRoleReaction: async (guildId, enable, channel, messageId) => {
+    let strBuilder = `"Enabled": ${enable}`;
+    if (channel !== null) strBuilder += `, "Channel": "${channel}"`;
+    if (messageId !== null) strBuilder += `, "MessageId": "${messageId}"`;
+    const data = `'{RoleReaction}', data->'RoleReaction' || '{${strBuilder}}'`;
+    return await updateGuildConfig(data, guildId);
+  }
+};
+
+const npcConfig = {
+  getNpcConfig: async (guildId) => {
     const cacheKey = `${guildId}npc`;
     if (cache.has(cacheKey)) return cache.get(cacheKey);
 
@@ -102,7 +121,7 @@ on conflict (guildid, type) do nothing;`;
     return data;
   },
 
-  async updateNpcConfig (guildId, npcId, add = false) {
+  updateNpcConfig: async (guildId, npcId, add = false) => {
     let npcConfig = await this.getNpcConfig(guildId);
     npcConfig = npcConfig.filter(item => item !== npcId);
     if (add) npcConfig = npcConfig.push(npcId);
@@ -115,47 +134,7 @@ on conflict (guildid, type) do update set data = EXCLUDED.data;`;
     cache.set(`${guildId}npc}`, JSON.stringify(npcConfig));
   },
 
-  async getGuildConfig (guildId) {
-    const cacheKey = `${guildId}config`;
-    if (cache.has(cacheKey)) return cache.get(cacheKey);
-
-    const [{ data }] = await torndb.Query(`select data from guilddata where guildid = '${guildId}' and type = 'config';`);
-    cache.set(cacheKey, data);
-    return data;
-  },
-
-  async setRoles (guildId, role, roleID) {
-    const cacheKey = `${guildId}config`;
-    const [{ data }] = await torndb.Query(`update guilddata set data = jsonb_set(data, '{"Roles", "${role}"}', '"${roleID}"') where guildid = '${guildId}' and type = 'config' returning data;`);
-    cache.set(cacheKey, data);
-    return data;
-  },
-
-  async setChannels (guildId, channel, channelID) {
-    const cacheKey = `${guildId}config`;
-    const [{ data }] = await torndb.Query(`update guilddata set data = jsonb_set(data, '{"Channels","${channel}"}', '"${channelID}"') where guildid = '${guildId}' and type = 'config' returning data;`);
-    cache.set(cacheKey, data);
-    return data;
-  },
-
-  async setChainWatch (guildId, enable) {
-    const cacheKey = `${guildId}config`;
-    const [{ data }] = await torndb.Query(`update guilddata set data = jsonb_set(data, '{"ChainWatch", "Enabled"}', '${enable}') where guildid = '${guildId}' and type = 'config' returning data;`);
-    cache.set(cacheKey, data);
-    return data;
-  },
-
-  async setRoleReaction (guildId, enable, channel, messageId) {
-    const cacheKey = `${guildId}config`;
-    let strBuilder = `"Enabled": ${enable}`;
-    if (channel !== null) strBuilder += `, "Channel": "${channel}"`;
-    if (messageId !== null) strBuilder += `, "MessageId": "${messageId}"`;
-    const [{ data }] = await torndb.Query(`update guilddata set data = jsonb_set(data, '{RoleReaction}', data->'RoleReaction' || '{${strBuilder}}') where guildid = '${guildId}' and type = 'config' returning data;`);
-    cache.set(cacheKey, data);
-    return data;
-  },
-
-  async updateNpcHospTime (npcId, hospTime) {
+  updateNpcHospTime: async (npcId, hospTime) => {
     const cacheKey = `HospTimeNpcID${npcId}`;
     if (cache.has(cacheKey)) {
       const res = cache.get(cacheKey);
@@ -170,7 +149,7 @@ on conflict (npcid) do update set hosptime = EXCLUDED.hosptime;`;
     cache.set(cacheKey, hospTime);
   },
 
-  async getNpcHospTime (npcId) {
+  getNpcHospTime: async (npcId) => {
     const cacheKey = `HospTimeNpcID${npcId}`;
     if (cache.has(cacheKey)) return cache.get(cacheKey);
 
@@ -181,4 +160,36 @@ where npcid= ${npcId};`;
     cache.set(cacheKey, hosptime);
     return hosptime;
   }
+};
+
+// create guild data in database
+async function creatGuild (guildId) {
+  const guildConfigQuery = `insert into guilddata (guildid, type, data) 
+values (${guildId}, 'config', '${JSON.stringify(guildConfigData)}')
+on conflict (guildid, type) do nothing;`;
+
+  const npcQuery = `insert into guilddata (guildid, type, data) 
+values (${guildId}, 'npc', '${JSON.stringify(npcConfigData)}')
+on conflict (guildid, type) do nothing;`;
+
+  await Promise.all([torndb.Query(guildConfigQuery), torndb.Query(npcQuery)]);
+  cache.set(`${guildId}config}`, JSON.stringify(guildConfigData));
+  cache.set(`${guildId}npc}`, JSON.stringify(npcConfigData));
+}
+
+async function deleteGuild (guildId) {
+  const guildConfigQuery = `delete from guilddata where guildid = '${guildId}' and type = 'config'`;
+  const npcQuery = `delete from guilddata where guildid = '${guildId}' and type = 'npc'`;
+
+  await Promise.all([torndb.Query(guildConfigQuery), torndb.Query(npcQuery)]);
+  cache.del(`${guildId}config}`);
+  cache.del(`${guildId}npc}`);
+}
+
+module.exports = {
+  guildConfigData,
+  guildConfig,
+  npcConfig,
+  creatGuild,
+  deleteGuild
 };

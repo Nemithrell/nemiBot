@@ -12,9 +12,9 @@ module.exports = {
     const npcChannelID = data.config.Channels.NPC;
     const res = await Promise.all(data.npcConfig.ids.map(id => user.profile(data.config, id, 300)));
     for (const npc of res) {
-      if (npc.states.hospital_timestamp !== 0) await client.guilddata.updateNpcHospTime(npc.player_id, npc.states.hospital_timestamp);
+      if (npc.states.hospital_timestamp !== 0) await client.guilddata.npcConfig.updateNpcHospTime(npc.player_id, npc.states.hospital_timestamp);
 
-      const npcHospTime = await client.guilddata.getNpcHospTime(npc.player_id);
+      const npcHospTime = await client.guilddata.npcConfig.getNpcHospTime(npc.player_id);
       const TimeToLootLeveIV = (npcHospTime * 1000) - (new Date()).getTime() + (210 * 60 * 1000);
       const TimeToLootLeveIVPretty = TimeToLootLeveIV > 0 ? prettyMS(TimeToLootLeveIV, { secondsDecimalDigits: 0 }) : 'Now!';
 
@@ -102,7 +102,7 @@ module.exports = {
             .addField('The Chain hit counter is: ', chain.chain.current, true);
           chainChannel.send(embed);
         }
-        if (chain.chain.cooldown !== 0 || chain.chain.current === 0) client.guilddata.setChainWatch(data.guild.id, false);
+        if (chain.chain.cooldown !== 0 || chain.chain.current === 0) client.guilddata.guildConfig.setChainWatch(data.guild.id, false);
       } catch (error) {
         if (!chainApiError) {
           chainApiError = true;

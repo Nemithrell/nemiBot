@@ -24,7 +24,7 @@ class AddNpc extends Command {
     try {
       const npcID = args[0];
       if (typeof npcID === 'number') {
-        await this.client.guilddata.updateNpcConfig(message.guild.id, args[0], true);
+        await this.client.guilddata.npcConfig.updateNpcConfig(message.guild.id, args[0], true);
         return message.channel.send(`NPC with ID: ${npcID} has been added`);
       } else {
         return message.channel.send(`${npcID} is not a valid value for NPC ID, supplied value should be a number.`);

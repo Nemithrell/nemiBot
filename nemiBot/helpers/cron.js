@@ -9,8 +9,8 @@ async function getData (client) {
   for (const [guildId, guild] of guilds) {
     const data = {};
     data.guild = guild;
-    data.config = await client.guilddata.getGuildConfig(guildId);
-    data.npcConfig = await client.guilddata.getNpcConfig(guildId);
+    data.config = await client.guilddata.guildConfig.getGuildConfig(guildId);
+    data.npcConfig = await client.guilddata.npcConfig.getNpcConfig(guildId);
     dataArray.push(data);
   }
   return dataArray;

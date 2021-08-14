@@ -6,7 +6,7 @@ module.exports = class {
   }
 
   async run (member) {
-    const guildConfig = await this.client.guilddata.getGuildConfig(member.guild.id);
+    const guildConfig = await this.client.guilddata.guildConfig.getGuildConfig(member.guild.id);
     try {
       const discordId = member ? member.id : null;
       const verifyRole = guildConfig.Roles.Verified;

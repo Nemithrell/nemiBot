@@ -18,7 +18,7 @@ module.exports = class {
     }
     if (client.user === user) return;
 
-    const guildConfig = await client.guilddata.getGuildConfig(reaction.message.guild.id);
+    const guildConfig = await client.guilddata.guildConfig.getGuildConfig(reaction.message.guild.id);
     if (!guildConfig.RoleReaction.Enabled) return;
 
     const { message, emoji } = reaction;

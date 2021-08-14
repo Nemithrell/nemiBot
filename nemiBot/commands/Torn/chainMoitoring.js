@@ -24,10 +24,10 @@ class ChainMonitoring extends Command {
     try {
       if (args.length < 1) return message.error('Invalid argument supplied, allowed arguments is "start" or "stop". Please see help command for more information on how to use this command.');
       if (args[0].toLowerCase() === 'start') {
-        await this.client.guilddata.setChainWatch(message.guild.id, true);
+        await this.client.guilddata.guildConfig.setChainWatch(message.guild.id, true);
         return message.success('Chain monitoring started.');
       } else if (args[0].toLowerCase() === 'stop') {
-        await this.client.guilddata.setChainWatch(message.guild.id, false);
+        await this.client.guilddata.guildConfig.setChainWatch(message.guild.id, false);
         return message.success('Chain monitoring stopped.');
       } else {
         return message.error('Invalid argument supplied, allowed arguments is "start" or "stop". Please see help command for more information on how to use this command.');

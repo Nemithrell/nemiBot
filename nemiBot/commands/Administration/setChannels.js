@@ -5,7 +5,7 @@ class SetChannels extends Command {
   constructor (client) {
     super(client, {
       name: 'SetChannel',
-      description: `Set the channel to be used for automatic notification. The available channel types are: ${Object.keys(client.guilddata.guildConfig.Channels).map((k) => k).join(', ')}`,
+      description: `Set the channel to be used for automatic notification. The available channel types are: ${Object.keys(client.guilddata.guildConfigData.Channels).map((k) => k).join(', ')}`,
       usage: 'SetChannel  channeltype (channel)',
       examples: 'SetChannel chain #test',
       dirname: __dirname,
@@ -38,7 +38,7 @@ class SetChannels extends Command {
         return message.error('Unable to find the mentioned channel. Please make sure you have typed correctly. you can find more info in the help command');
       }
 
-      await this.client.guilddata.setChannels(message.guild.id, channeltype, channel.id);
+      await this.client.guilddata.guildConfig.setChannels(message.guild.id, channeltype, channel.id);
       return message.channel.send(`Channel type: ${channeltype} set to notify on channel ${channel}`);
     } catch (err) {
       this.client.logger.log(err, 'error');
