@@ -122,16 +122,16 @@ const npcConfig = {
   },
 
   updateNpcConfig: async (guildId, npcId, add = false) => {
-    let npcConfig = await this.getNpcConfig(guildId);
-    npcConfig = npcConfig.filter(item => item !== npcId);
-    if (add) npcConfig = npcConfig.push(npcId);
+    let npcConf = await npcConfig.getNpcConfig(guildId);
+    npcConf = npcConf.ids.filter(item => item !== npcId);
+    if (add) npcConf = npcConf.push(npcId);
 
     const query = `insert into guilddata (guildid, type, data) 
-values (${guildId}, 'npc', '${JSON.stringify(npcConfig)}')
+values (${guildId}, 'npc', '${JSON.stringify(npcConf)}')
 on conflict (guildid, type) do update set data = EXCLUDED.data;`;
 
     await torndb.Query(query);
-    cache.set(`${guildId}npc}`, JSON.stringify(npcConfig));
+    cache.set(`${guildId}npc}`, JSON.stringify(npcConf));
   },
 
   updateNpcHospTime: async (npcId, hospTime) => {

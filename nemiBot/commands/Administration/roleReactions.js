@@ -29,7 +29,7 @@ class RoleReaction extends Command {
       let messageId = null;
 
       // Check for correct number of arguments supplied
-      if (args.length < 1 && args.length > 2) return message.error('Invalid number of arguments supplied.See help command for information on how to use this command.');
+      if (args.length < 1 || args.length > 2) return message.error('Invalid number of arguments supplied.See help command for information on how to use this command.');
       // Set variables based on argument supplied. Off to disable feature, On to enable feature.
       switch (args[0].toLowerCase()) {
         case 'off':
