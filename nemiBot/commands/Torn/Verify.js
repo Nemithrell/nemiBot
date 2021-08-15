@@ -32,16 +32,16 @@ class Verify extends Command {
         const userBasic = await user.basic(data.config, discordId, 30);
         if (userBasic) {
           if (verifyRole != null && !message.member.roles.cache.has(verifyRole.id)) message.member.roles.add(verifyRole);
-          if (message.member.displayName !== `${userBasic.name} [${userBasic.player_id}]`) message.member.setNickname(`${userBasic.name} [${userBasic.player_id}]`);
-          message.channel.send(`${member} has been assosiated with Torn player ${userBasic.name} [${userBasic.player_id}]`);
+          if (message.member.displayName !== `${userBasic.name} [${userBasic.player_id}]` && message.member.manageable) message.member.setNickname(`${userBasic.name} [${userBasic.player_id}]`);
+          message.success(`${member} has been assosiated with Torn player ${userBasic.name} [${userBasic.player_id}]`);
         } else if (!userBasic) {
-          message.channel.send(`Unable to find a Torn profile asociated with discord user ${member}. Please make sure to link the discord profile to Torn.`);
+          message.error(`Unable to find a Torn profile asociated with discord user ${member}. Please make sure to link the discord profile to Torn.`);
         }
       } else if (args[0].toLowerCase() === 'all') {
         verifyAll(this.client, data);
-        message.channel.send('verifying everyone triggered');
+        message.success('verifying everyone triggered');
       } else {
-        message.channel.send('Unable to find discord ID of the user. Please make sure you type the command correctly. See the help command for more information.');
+        message.error('Unable to find discord ID of the user. Please make sure you type the command correctly. See the help command for more information.');
       }
     } catch (err) {
       this.client.logger.log(err, 'error');

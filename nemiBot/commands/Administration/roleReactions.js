@@ -45,18 +45,18 @@ class RoleReaction extends Command {
       }
 
       // If 2 arguments are supplied we resolve the 2nd one to a channel
-      if (args.length === 2) channel = await resolveChannel({ message, search: args[1].toLowerCase(), channelType: 'text' });
+      if (args.length === 2) channel = await resolveChannel({ message, search: args[1].toLowerCase(), channelType: 'GUILD_TEXT' });
 
       // Return an error message if we are unable to find the mentioned channel in second argument.
       if (!channel && enable) return message.error(`Unable to find the mentioned channel ${args[1]}, please make sure you have typed correctly`);
 
       // Return an error if the command was for enabling the feature and it is already enabled.
-      if (enable && data.config.RoleReaction.Enabled) return message.error(`Role Reaction is already enabled and is tracking a message in ${await resolveChannel({ message, search: data.config.RoleReaction.Channel, channelType: 'text' })}. If you want to overwrite the configuration stored, please turn the feature off first and then on again.`);
+      if (enable && data.config.RoleReaction.Enabled) return message.error(`Role Reaction is already enabled and is tracking a message in ${await resolveChannel({ message, search: data.config.RoleReaction.Channel, channelType: 'GUILD_TEXT' })}. If you want to overwrite the configuration stored, please turn the feature off first and then on again.`);
 
       // Delete old tracked message if the command is to disable the feature.
       if (!enable) {
         try {
-          const oldChannel = await resolveChannel({ message, search: data.config.RoleReaction.Channel, channelType: 'text' });
+          const oldChannel = await resolveChannel({ message, search: data.config.RoleReaction.Channel, channelType: 'GUILD_TEXT' });
           const oldMessage = await oldChannel.messages.fetch(data.config.RoleReaction.MessageId);
           await oldMessage.delete();
         } catch (err) {
@@ -89,7 +89,7 @@ class RoleReaction extends Command {
       }
 
       // Send the embedded message in the mentioned channel and react with all the applicable reactions.
-      const reactMessage = await channel.send(embed);
+      const reactMessage = await channel.send({ embeds: [embed] });
       messageId = reactMessage.id;
       for (const emoji of reactionEmoji) {
         reactMessage.react(emoji[1]);
@@ -97,6 +97,7 @@ class RoleReaction extends Command {
 
       // Store the configuration
       await this.client.guilddata.guildConfig.setRoleReaction(message.guild.id, enable, channel, messageId);
+      return message.success('Role Reactions successfully enabled');
     } catch (err) {
       this.client.logger.log(err, 'error');
     }

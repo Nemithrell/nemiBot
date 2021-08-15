@@ -25,9 +25,8 @@ module.exports = class {
       .setTimestamp();
 
     try {
-      const owner = await guild.members.fetch(guild.ownerID);
-      owner.send(thanksEmbed);
-      owner.send(setupEmbed);
+      const owner = await guild.members.fetch(guild.ownerId);
+      owner.send({ embeds: [thanksEmbed, setupEmbed] });
     } catch (err) {
       this.client.logger.log(err.stack, 'error');
     }

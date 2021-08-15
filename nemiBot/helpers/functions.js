@@ -37,8 +37,8 @@ module.exports = {
             data.guild.roles.resolve(data.config.Roles.NPC)]);
 
           if (npcChannel) {
-            if (npcRole) npcChannel.send(`${npcRole}`);
-            npcChannel.send(embed);
+            if (npcRole) npcChannel.send({ content: `${npcRole}`, embeds: [embed] });
+            else npcChannel.send({ embeds: [embed] });
           }
           cache.set(cacheKey, true);
         }
@@ -65,11 +65,12 @@ module.exports = {
         cache.set(cacheKey, true, 3600);
       }
       if (sendMessage) {
-        if (ocRole) ocChannel.send(`${ocRole}`);
         const embed = new Discord.MessageEmbed()
           .setColor(client.config.embed.color)
           .setAuthor('An OC is ready for initiation, please click here to access faction crime page.', 'https://www.torn.com/images/crimes/i.png', 'https://www.torn.com/factions.php?step=your#/tab=crimes');
-        ocChannel.send(embed);
+
+        if (ocRole) ocChannel.send({ content: `${ocRole}`, embeds: [embed] });
+        else ocChannel.send({ embeds: [embed] });
       }
     }
   },
@@ -100,7 +101,7 @@ module.exports = {
             .setColor(client.config.embed.color)
             .setAuthor(`The chain is about to time out in ${prettyMS(chainTimer * 1000, { secondsDecimalDigits: 0 })}. Please make a hit.`, 'https://www.torn.com/images/items/399/large.png', 'https://www.torn.com/')
             .addField('The Chain hit counter is: ', chain.chain.current, true);
-          chainChannel.send(embed);
+          chainChannel.send({ embeds: [embed] });
         }
         if (chain.chain.cooldown !== 0 || chain.chain.current === 0) client.guilddata.guildConfig.setChainWatch(data.guild.id, false);
       } catch (error) {
@@ -121,8 +122,8 @@ module.exports = {
     while (members.length) {
       chunked.push(members.splice(0, 10));
     }
-    for (const arr of chunked) {
-      for (const [discordId, discordUser] of arr) {
+    for (const chunk of chunked) {
+      for (const [discordId, discordUser] of chunk) {
         const tornUser = await user.basic(data.config, discordId, 300);
         if (tornUser) {
           if (verifyRole != null && !discordUser.roles.cache.has(verifyRole.id)) discordUser.roles.add(verifyRole);

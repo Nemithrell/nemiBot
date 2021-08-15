@@ -42,7 +42,7 @@ class SetRoles extends Command {
       data.config = await this.client.guilddata.guildConfig.setRoles(message.guild.id, roleType, role.id);
 
       if (updateRoleReactions) {
-        const reactChannel = await Resolvers.resolveChannel({ message, search: data.config.RoleReaction.Channel, channelType: 'text' });
+        const reactChannel = await Resolvers.resolveChannel({ message, search: data.config.RoleReaction.Channel, channelType: 'GUILD_TEXT' });
         const reactMessage = await reactChannel.messages.fetch(data.config.RoleReaction.MessageId);
 
         // Get emojis for all roles

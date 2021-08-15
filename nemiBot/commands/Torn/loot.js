@@ -24,9 +24,13 @@ class Loot extends Command {
   async run (message, args, data) {
     try {
       const msgArray = await checkNpc(this.client, data);
+      const chunked = [];
+      while (msgArray.length) {
+        chunked.push(msgArray.splice(0, 10));
+      }
 
-      for (const msg of msgArray) {
-        message.channel.send(msg);
+      for (const chunk of chunked) {
+        message.channel.send({ embeds: chunk });
       }
     } catch (err) {
       this.client.logger.log(err, 'error');

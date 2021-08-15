@@ -9,6 +9,15 @@ module.exports = class {
   async run (message) {
     const data = {};
 
+    if (message.partial) {
+      try {
+        await message.fetch();
+      } catch (error) {
+        this.client.logger.log('Something went wrong when fetching the message: ' + error, 'error');
+        return;
+      }
+    }
+
     // If the messagr author is a bot
     if (message.author.bot) {
       return;
@@ -72,7 +81,7 @@ module.exports = class {
         return message.error(`I need the following permissions to execute this command: ${list}`);
       }
 
-      if (cmd.conf.ownerOnly && message.guild.ownerID !== message.member.id) {
+      if (cmd.conf.ownerOnly && message.guild.ownerId !== message.member.id) {
         return message.error('This command is only available to the guild owner!');
       }
 
@@ -111,7 +120,7 @@ module.exports = class {
     }
     try {
       cmd.run(message, args, data);
-      if (cmd.help.category === 'Administration' && data.config ? data.config.autoDeleteModCommands : client.config.autoDeleteModCommands) {
+      if (cmd.help.category === 'Administration' && (data.config ? data.config.autoDeleteModCommands : client.config.autoDeleteModCommands)) {
         message.delete();
       }
     } catch (err) {

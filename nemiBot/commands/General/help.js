@@ -52,7 +52,7 @@ class Help extends Command {
         .setFooter(this.client.config.embed.footer);
 
       // and send the embed in the current channel
-      return message.channel.send(groupEmbed);
+      return message.channel.send({ embeds: [groupEmbed] });
     }
 
     // put all command categories into an array
@@ -64,7 +64,7 @@ class Help extends Command {
         if (command.help.category === 'Administration' && !message.channel.permissionsFor(message.member).has('MANAGE_GUILD')) {
           return;
         }
-        if (command.help.category === 'Owner' && message.author.id !== message.guild.ownerID) {
+        if (command.help.category === 'Owner' && message.author.id !== message.guild.ownerId) {
           return;
         }
         categories.push(command.help.category);
@@ -83,7 +83,7 @@ class Help extends Command {
     }
 
     embed.setAuthor(`${this.client.user.username} commands`);
-    return message.channel.send(embed);
+    return message.channel.send({ embeds: [embed] });
   }
 }
 

@@ -74,7 +74,7 @@
     <Content Include="events\guildDelete.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="events\message.js">
+    <Content Include="events\messageCreate.js">
       <SubType>Code</SubType>
     </Content>
     <Content Include="events\messageReactionRemove.js" />

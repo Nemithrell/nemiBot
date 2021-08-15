@@ -32,7 +32,7 @@ class SetChannels extends Command {
       channel = await Resolvers.resolveChannel({
         message,
         search: channel,
-        channelType: 'text'
+        channelType: 'GUILD_TEXT'
       });
       if (!channel) {
         return message.error('Unable to find the mentioned channel. Please make sure you have typed correctly. you can find more info in the help command');
