@@ -23,13 +23,16 @@ class Help extends Command {
 
   async run (message, args, data) {
     const prefix = data.config.Prefix;
+    let argLower;
+
+    if (typeof args[0] === 'string') argLower = (args[0]).toLowerCase();
 
     // if a command is provided
-    if (args[0]) {
+    if (argLower) {
       // if the command doesn't exist, error message
-      const cmd = this.client.commands.get(args[0]) || this.client.commands.get(this.client.aliases.get(args[0]));
+      const cmd = this.client.commands.get(argLower) || this.client.commands.get(this.client.aliases.get(argLower));
       if (!cmd) {
-        return message.error(`${args[0]} is not a valid command`);
+        return message.error(`${argLower} is not a valid command`);
       }
 
       // Creates the help embed
