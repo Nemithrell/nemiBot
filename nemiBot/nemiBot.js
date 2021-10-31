@@ -4,18 +4,12 @@ const util = require('util');
 const fs = require('fs');
 const readdir = util.promisify(fs.readdir);
 
-const myIntents = new Intents();
-myIntents.add(
-  Intents.FLAGS.GUILD_MEMBERS,
-  Intents.FLAGS.GUILD_MESSAGES,
-  Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-  Intents.FLAGS.GUILDS,
-  Intents.FLAGS.DIRECT_MESSAGES,
-  Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS);
-
 // Load nemiBot class
 const NemiBot = require('./base/nemiBot.js');
-const client = new NemiBot({ intents: myIntents }, { partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER'] });
+const client = new NemiBot({
+  intents: [Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
+  partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER']
+});
 
 const init = async () => {
   // Search for all commands

@@ -2,7 +2,7 @@ const torndb = require('../db/torn');
 const NodeCache = require('node-cache');
 const config = require('../config');
 
-const cache = new NodeCache({ stdTTL: 3600 });
+const cache = new NodeCache({ stdTTL: 86400 });
 
 const guildConfigData = {
   SchemaVersion: 0.1,
@@ -67,6 +67,23 @@ async function updateGuildConfig (jsonb, guildId) {
   return data;
 }
 
+const guildMemberNotInFaction = {
+  getList: async (guildId) => {
+    const cacheKey = `${guildId}guldMemberNotInFactionList`;
+    const arr = await torndb.Query(`select data from guilddata where guildid = '${guildId}' and type = 'guldMemberNotInFaction';`);
+    const [{ data = [] } = {}] = arr;
+    cache.set(cacheKey, data);
+    return data;
+  },
+
+  setList: async (guildId, newData) => {
+    const cacheKey = `${guildId}guldMemberNotInFactionList`;
+    const [{ data }] = await torndb.Query(`insert into guilddata (guildid, type, data) values ('${guildId}', 'guldMemberNotInFaction', '${JSON.stringify(newData)}') on conflict (guildid, type) do update set data = EXCLUDED.data returning data;`);
+    cache.set(cacheKey, data);
+    return data;
+  }
+};
+
 const guildConfig = {
   getGuildConfig: async (guildId) => {
     const cacheKey = `${guildId}config`;
@@ -88,7 +105,7 @@ const guildConfig = {
   },
 
   setChannels: async (guildId, channel, channelID) => {
-    const data = `'{"Channels","${channel}"}', '${channelID}'`;
+    const data = `'{"Channels","${channel}"}', '"${channelID}"'`;
     return await updateGuildConfig(data, guildId);
   },
 
@@ -190,5 +207,6 @@ module.exports = {
   guildConfig,
   npcConfig,
   creatGuild,
-  deleteGuild
+  deleteGuild,
+  guildMemberNotInFaction
 };

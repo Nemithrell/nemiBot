@@ -6,6 +6,46 @@ const NodeCache = require('node-cache');
 const cache = new NodeCache({ stdTTL: 180 });
 let chainApiError = false;
 
+const getDiffObj = (o1, o2) => Object.keys(o1)
+  .filter(k => !Object.keys(o2).includes(k))
+  .map(k => o1[k] || o2[k]);
+
+async function createFactionRoles (client, data) {
+  const [oldRoles, newRoles] = await faction.positions(data.config, data.guild.id);
+  let roleNames = [];
+  if (Object.keys(oldRoles).length !== 0) {
+    // find all positions that needs to be removed
+    const deleteRoles = getDiffObj(oldRoles.positions, newRoles.positions);
+    const createRoles = getDiffObj(oldRoles.positions, newRoles.positions);
+    if (deleteRoles) {
+      roleNames = Object.entries(deleteRoles).filter(([k, v]) => v.default === 0).map(([k, v]) => k);
+      for (const roleName of roleNames) {
+        const discordRole = await data.guild.roles.cache.find(role => role.name === roleName);
+        if (discordRole) discordRole.delete();
+      }
+    }
+
+    if (createRoles) {
+      roleNames = Object.entries(createRoles).filter(([k, v]) => v.default === 0).map(([k, v]) => k);
+      for (const roleName of roleNames) {
+        await data.guild.roles.create({ name: roleName });
+      }
+    }
+  } else {
+    if (Object.keys(newRoles).length !== 0) {
+      roleNames = Object.entries(newRoles.positions).filter(([k, v]) => v.default === 0).map(([k, v]) => k);
+      for (const roleName of roleNames) {
+        const discordRole = await data.guild.roles.cache.find(role => role.name === roleName);
+        if (discordRole === undefined) await data.guild.roles.create({ name: roleName });
+      }
+    }
+  }
+  if (Object.keys(newRoles).length !== 0) {
+    const res = await Object.entries(newRoles.positions).filter(([k, v]) => v.default === 0).map(([k, v]) => data.guild.roles.cache.find(role => role.name === k)).filter(x => x !== undefined);
+    return res;
+  } else return [];
+}
+
 module.exports = {
   async checkNpc (client, data) {
     const msgArray = [];
@@ -119,19 +159,84 @@ module.exports = {
     const verifyRole = await data.guild.roles.cache.get(data.config.Roles.Verified);
     const members = (Array.from(await data.guild.members.fetch())).filter(([k, v]) => v.manageable === true);
     const chunked = [];
+    const factionRoleList = await createFactionRoles(client, data);
+    const factionMembers = Object.entries((await faction.basic(data.config)).members).map(([k, v]) => [parseInt(k), v.position]);
     while (members.length) {
       chunked.push(members.splice(0, 10));
     }
     for (const chunk of chunked) {
       for (const [discordId, discordUser] of chunk) {
-        const tornUser = await user.basic(data.config, discordId, 300);
-        if (tornUser) {
+        const tornUser = await user.profile(data.config, discordId, 300);
+        if (Object.prototype.hasOwnProperty.call(tornUser, 'player_id')) {
           if (verifyRole != null && !discordUser.roles.cache.has(verifyRole.id)) discordUser.roles.add(verifyRole);
           if (discordUser.displayName !== `${tornUser.name} [${tornUser.player_id}]`) discordUser.setNickname(`${tornUser.name} [${tornUser.player_id}]`);
+          if (factionMembers.some(([k, v]) => k === tornUser.player_id) && factionRoleList) {
+            let [, memberFactionRole] = factionMembers.find(([k, v]) => k === tornUser.player_id);
+            memberFactionRole = await data.guild.roles.cache.find(role => role.name === memberFactionRole);
+            for (const role of factionRoleList) {
+              if (discordUser.roles.cache.has(role.id) && role.id !== memberFactionRole.id) discordUser.roles.remove(role);
+              else if (role.id === memberFactionRole.id) discordUser.roles.add(memberFactionRole);
+            }
+          } else {
+            for (const role of factionRoleList) {
+              if (discordUser.roles.cache.has(role.id)) {
+                if (data.config.Channels.NotInFaction) {
+                  const guildMemberNotInFaction = await client.guilddata.guildMemberNotInFaction.getList(data.guild.id);
+                  if (guildMemberNotInFaction.length !== 0) {
+                    if (!guildMemberNotInFaction.some((x) => x.player_id === tornUser.player_id)) {
+                      const channel = data.guild.channels.cache.get(data.config.Channels.NotInFaction);
+                      const embed = new Discord.MessageEmbed()
+                        .setDescription(`The user: ${tornUser.name} is assigned the faction role: ${role.name}, but the user is not a member of faction. Please use the react icon to remove the role from the user.`)
+                        .setColor(this.client.config.embed.color)
+                        .setFooter(this.client.config.embed.footer)
+                        .setAuthor('Discord user with Faction role that is not a member of faction.');
+
+                      // Send the embedded message in the mentioned channel and react with all the applicable reactions.
+                      const reactMessage = await channel.send({ embeds: [embed] });
+                      reactMessage.react(client.customEmojis.guildMemberNotInFaction);
+
+                      const newguildMemberNotInFaction = {
+                        player_id: tornUser.player_id,
+                        discordId: discordUser.id,
+                        messageId: reactMessage.id,
+                        roleId: role.id
+                      };
+                      guildMemberNotInFaction.push(newguildMemberNotInFaction);
+                      await client.guilddata.guildMemberNotInFaction.setList(data.guild.id, guildMemberNotInFaction);
+                    }
+                  } else {
+                    const channel = await data.guild.channels.cache.get(data.config.Channels.NotInFaction);
+                    const embed = new Discord.MessageEmbed()
+                      .setDescription(`The user: ${tornUser.name} is assigned the faction role: ${role.name}, but the user is not a member of faction. Please use the react icon to remove the role from the user.`)
+                      .setColor(this.client.config.embed.color)
+                      .setFooter(this.client.config.embed.footer)
+                      .setAuthor('Discord user with Faction role that is not a member of faction.');
+
+                    // Send the embedded message in the mentioned channel and react with all the applicable reactions.
+                    const reactMessage = await channel.send({ embeds: [embed] });
+                    reactMessage.react(client.customEmojis.guildMemberNotInFaction);
+
+                    const newguildMemberNotInFaction = {
+                      player_id: tornUser.player_id,
+                      discordId: discordUser.id,
+                      messageId: reactMessage.id,
+                      roleId: role.id
+                    };
+                    guildMemberNotInFaction.push(newguildMemberNotInFaction);
+                    await client.guilddata.guildMemberNotInFaction.setList(data.guild.id, guildMemberNotInFaction);
+                  }
+                } else discordUser.roles.remove(role);
+              }
+            }
+          }
+          await new Promise(resolve => setTimeout(resolve, 100));
         }
-        await new Promise(resolve => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 5000));
       }
-      await new Promise(resolve => setTimeout(resolve, 10000));
     }
   }
+};
+
+module.exports = {
+  createFactionRoles
 };

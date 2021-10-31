@@ -39,23 +39,29 @@ async function apiFetch (url) {
   } catch (err) { return err; }
 }
 
-async function makeRequest (guildConfig, endpoint, selection, persist, force, id, ttl) {
+async function makeRequest (guildConfig, endpoint, selection, persist, force, id, ttl, guildId = null) {
   if (!guildConfig.Faction.Id) throw Error('No connection to a Torn Faction. Torn API requests is not allowed until you connect your guild to a Torn faction.');
-  const cacheKey = `${endpoint}${selection}${id}`;
-  const url = `${TORN_URL}${endpoint}/${id}?selections=${selection}&key=${await getAPIKey(guildConfig)}`;
+  let cacheKey = `${endpoint}${selection}${id}`;
+  if (guildId) cacheKey = `${guildId}${endpoint}${selection}${id}`;
+  const url = `${TORN_URL}${endpoint}/${id}?selections=${selection}&key=${await getAPIKey(guildConfig)}&comment=NemiBot`;
   const cacheKeyQuery = `select result from tornapidata where apiquery = '${cacheKey}';`;
-  const cacheKeyInsert = `insert into tornAPIdata (apiquery, result) values ('${cacheKey}', '$1')`;
 
   if (!force) {
     // check for cached values and return cache if exists
-    if (cache.has(cacheKey)) {
+    if (cache.has(cacheKey) && !persist) {
       return cache.get(cacheKey);
+    } else if (persist && cache.has(cacheKey)) {
+      return [cache.get(cacheKey), cache.get(cacheKey)];
     } else if (persist) {
       // check if value is stored in DB
-      const [{ result }] = await torndb.Query(cacheKeyQuery);
-      if (result !== undefined) {
-        cache.set(cacheKey, result, ttl); // cache the returned result from DB.
-        return result;
+      const arr = await torndb.Query(cacheKeyQuery);
+      const [{ result = '' } = {}] = arr;
+      if (result) {
+        const newResult = await apiFetch(url);
+        const cacheKeyInsert = `insert into tornAPIdata (apiquery, result) values ('${cacheKey}', '${JSON.stringify(newResult)}') on conflict (apiquery) do update set result = EXCLUDED.result`;
+        await torndb.Query(cacheKeyInsert);
+        cache.set(cacheKey, newResult, ttl);
+        return [result, newResult];
       }
     }
   }
@@ -63,7 +69,11 @@ async function makeRequest (guildConfig, endpoint, selection, persist, force, id
   const result = await apiFetch(url);
   cache.set(cacheKey, result, ttl);
 
-  if (persist) torndb.Query(cacheKeyInsert, [JSON.stringify(result)]);
+  if (persist) {
+    const cacheKeyInsert = `insert into tornAPIdata (apiquery, result) values ('${cacheKey}', '${JSON.stringify(result)}') on conflict (apiquery) do update set result = EXCLUDED.result`;
+    await torndb.Query(cacheKeyInsert);
+    return [{}, result];
+  }
 
   return result;
 }
@@ -80,8 +90,10 @@ const properties = {
 
 const faction = {
   applications: async (guildConfig) => { return makeRequest(guildConfig, 'faction', 'applications', false, false, guildConfig.Faction.Id, 30); },
+  basic: async (guildConfig) => { return makeRequest(guildConfig, 'faction', 'basic', false, false, guildConfig.Faction.Id, 3600); },
   crimes: async (guildConfig) => { return makeRequest(guildConfig, 'faction', 'crimes', false, false, guildConfig.Faction.Id, 30); },
-  chain: async (guildConfig) => { return makeRequest(guildConfig, 'faction', 'chain,timestamp', false, false, guildConfig.Faction.Id, 10); }
+  chain: async (guildConfig) => { return makeRequest(guildConfig, 'faction', 'chain,timestamp', false, false, guildConfig.Faction.Id, 10); },
+  positions: async (guildConfig, guildId) => { return makeRequest(guildConfig, 'faction', 'positions', true, false, guildConfig.Faction.Id, 3600, guildId); }
 };
 
 const company = {

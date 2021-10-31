@@ -48,6 +48,7 @@
     <Content Include="commands\General\help.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="commands\Owner\test.js" />
     <Content Include="commands\Torn\chainMoitoring.js" />
     <Content Include="commands\Torn\loot.js">
       <SubType>Code</SubType>
@@ -77,6 +78,7 @@
     <Content Include="events\messageCreate.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="events\messageDelete.js" />
     <Content Include="events\messageReactionRemove.js" />
     <Content Include="events\messageReactionAdd.js" />
     <Content Include="events\guildMemberAdd.js" />
