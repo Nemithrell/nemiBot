@@ -6,9 +6,8 @@ const NodeCache = require('node-cache');
 const cache = new NodeCache({ stdTTL: 180 });
 let chainApiError = false;
 
-const getDiffObj = (o1, o2) => Object.keys(o1)
-  .filter(k => !Object.keys(o2).includes(k))
-  .map(k => o1[k] || o2[k]);
+const getDiffObj = (o1, o2) => Object.fromEntries(Object.entries(o1)
+  .filter(([k, v]) => !Object.keys(o2).includes(k)));
 
 async function createFactionRoles (client, data) {
   const [oldRoles, newRoles] = await faction.positions(data.config, data.guild.id);
@@ -16,7 +15,7 @@ async function createFactionRoles (client, data) {
   if (Object.keys(oldRoles).length !== 0) {
     // find all positions that needs to be removed
     const deleteRoles = getDiffObj(oldRoles.positions, newRoles.positions);
-    const createRoles = getDiffObj(oldRoles.positions, newRoles.positions);
+    const createRoles = getDiffObj(newRoles.positions, oldRoles.positions);
     if (deleteRoles) {
       roleNames = Object.entries(deleteRoles).filter(([k, v]) => v.default === 0).map(([k, v]) => k);
       for (const roleName of roleNames) {
