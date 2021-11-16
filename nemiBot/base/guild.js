@@ -84,6 +84,44 @@ const guildMemberNotInFaction = {
   }
 };
 
+const factionTeritoryMonitoring = {
+  getList: async (guildId) => {
+    const cacheKey = `${guildId}factionTeritoryMonitoringList`;
+    const arr = await torndb.Query(`select data from guilddata where guildid = '${guildId}' and type = 'factionTeritoryMonitoring';`);
+    const [{ data = [] } = {}] = arr;
+    cache.set(cacheKey, data);
+    return data;
+  },
+
+  setList: async (guildId, newData) => {
+    const cacheKey = `${guildId}factionTeritoryMonitoringList`;
+    const [{ data }] = await torndb.Query(`insert into guilddata (guildid, type, data) values ('${guildId}', 'factionTeritoryMonitoring', '${JSON.stringify(newData)}') on conflict (guildid, type) do update set data = EXCLUDED.data returning data;`);
+    cache.set(cacheKey, data);
+    return data;
+  },
+
+  add: async (guildId, factionId) => {
+    const cacheKey = `${guildId}factionTeritoryMonitoringList`;
+    const oldData = await factionTeritoryMonitoring.getList(guildId);
+    let newData = [];
+    if (oldData) newData = oldData.filter(x => x !== factionId);
+    newData.push(factionId);
+    const [{ data }] = await torndb.Query(`insert into guilddata (guildid, type, data) values ('${guildId}', 'factionTeritoryMonitoring', '${JSON.stringify(newData)}') on conflict (guildid, type) do update set data = EXCLUDED.data returning data;`);
+    cache.set(cacheKey, data);
+    return data;
+  },
+
+  remove: async (guildId, factionId) => {
+    const cacheKey = `${guildId}factionTeritoryMonitoringList`;
+    const oldData = await factionTeritoryMonitoring.getList(guildId);
+    let newData = [];
+    if (oldData) newData = oldData.filter(x => x !== factionId);
+    const [{ data }] = await torndb.Query(`insert into guilddata (guildid, type, data) values ('${guildId}', 'factionTeritoryMonitoring', '${JSON.stringify(newData)}') on conflict (guildid, type) do update set data = EXCLUDED.data returning data;`);
+    cache.set(cacheKey, data);
+    return data;
+  }
+};
+
 const guildConfig = {
   getGuildConfig: async (guildId) => {
     const cacheKey = `${guildId}config`;
@@ -100,7 +138,7 @@ const guildConfig = {
   },
 
   setRoles: async (guildId, role, roleID) => {
-    const data = `'{"Roles", "${role}"}', '${roleID}'`;
+    const data = `'{"Roles", "${role}"}', '"${roleID}"'`;
     return await updateGuildConfig(data, guildId);
   },
 
@@ -208,5 +246,6 @@ module.exports = {
   npcConfig,
   creatGuild,
   deleteGuild,
-  guildMemberNotInFaction
+  guildMemberNotInFaction,
+  factionTeritoryMonitoring
 };

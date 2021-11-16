@@ -39,10 +39,10 @@ async function apiFetch (url) {
   } catch (err) { return err; }
 }
 
-async function makeRequest (guildConfig, endpoint, selection, persist, force, id, ttl, guildId = null) {
+async function makeRequest (guildConfig, endpoint, selection, persist, force, id, ttl, discordGuildId = null) {
   if (!guildConfig.Faction.Id) throw Error('No connection to a Torn Faction. Torn API requests is not allowed until you connect your guild to a Torn faction.');
   let cacheKey = `${endpoint}${selection}${id}`;
-  if (guildId) cacheKey = `${guildId}${endpoint}${selection}${id}`;
+  if (discordGuildId) cacheKey = `${discordGuildId}${endpoint}${selection}${id}`;
   const url = `${TORN_URL}${endpoint}/${id}?selections=${selection}&key=${await getAPIKey(guildConfig)}&comment=NemiBot`;
   const cacheKeyQuery = `select result from tornapidata where apiquery = '${cacheKey}';`;
 
@@ -51,7 +51,7 @@ async function makeRequest (guildConfig, endpoint, selection, persist, force, id
     if (cache.has(cacheKey) && !persist) {
       return cache.get(cacheKey);
     } else if (persist && cache.has(cacheKey)) {
-      return [cache.get(cacheKey), cache.get(cacheKey)];
+      return [cache.get(cacheKey), []];
     } else if (persist) {
       // check if value is stored in DB
       const arr = await torndb.Query(cacheKeyQuery);
@@ -90,10 +90,10 @@ const properties = {
 
 const faction = {
   applications: async (guildConfig) => { return makeRequest(guildConfig, 'faction', 'applications', false, false, guildConfig.Faction.Id, 30); },
-  basic: async (guildConfig) => { return makeRequest(guildConfig, 'faction', 'basic', false, false, guildConfig.Faction.Id, 3600); },
+  basic: async (guildConfig, factionId = null) => { return makeRequest(guildConfig, 'faction', 'basic', false, false, factionId || guildConfig.Faction.Id, 3600); },
   crimes: async (guildConfig) => { return makeRequest(guildConfig, 'faction', 'crimes', false, false, guildConfig.Faction.Id, 30); },
   chain: async (guildConfig) => { return makeRequest(guildConfig, 'faction', 'chain,timestamp', false, false, guildConfig.Faction.Id, 10); },
-  positions: async (guildConfig, guildId) => { return makeRequest(guildConfig, 'faction', 'positions', true, false, guildConfig.Faction.Id, 3600, guildId); }
+  positions: async (guildConfig, discordGuildId) => { return makeRequest(guildConfig, 'faction', 'positions', true, false, guildConfig.Faction.Id, 3600, discordGuildId); }
 };
 
 const company = {
@@ -110,7 +110,7 @@ const torn = {
   items: async (guildConfig) => { return makeRequest(guildConfig, 'torn', 'items', true); },
   organisedcrimes: async (guildConfig) => { return makeRequest(guildConfig, 'torn', 'organisedcrimes', true); },
   rackets: async (guildConfig) => { return makeRequest(guildConfig, 'torn', 'rackets', true); },
-  territory: async (guildConfig) => { return makeRequest(guildConfig, 'torn', 'territory', true); },
+  territoryWithWars: async (guildConfig) => { return makeRequest(guildConfig, 'torn', 'territory,territorywars', true, false, '', 20); },
   territorywars: async (guildConfig) => { return makeRequest(guildConfig, 'torn', 'territorywars', true); }
 };
 

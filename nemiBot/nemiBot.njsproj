@@ -39,6 +39,8 @@
     <Content Include="base\nemiBot.js">
       <SubType>Code</SubType>
     </Content>
+    <Content Include="commands\Administration\removeFactionTeritoryMonitor.js" />
+    <Content Include="commands\Administration\addFactionTeritoryMonitor.js" />
     <Content Include="commands\Administration\setDeleteModCommands.js" />
     <Content Include="commands\Administration\roleReactions.js" />
     <Content Include="commands\Administration\removeNpc.js" />

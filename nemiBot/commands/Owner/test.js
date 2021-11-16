@@ -1,5 +1,5 @@
 const Command = require('../../base/command.js');
-const { createFactionRoles } = require('../../helpers/functions.js');
+const { checkTT } = require('../../helpers/functions.js');
 
 class test extends Command {
   constructor (client) {
@@ -22,7 +22,7 @@ class test extends Command {
   }
 
   async run (message, args, data) {
-    await createFactionRoles(this.client, data);
+    await checkTT(this.client, data);
   }
 }
 

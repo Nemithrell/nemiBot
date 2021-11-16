@@ -1,4 +1,4 @@
-const { user, faction } = require('./tornAPI');
+const { user, faction, torn } = require('./tornAPI');
 const Discord = require('discord.js');
 const prettyMS = require('pretty-ms');
 const NodeCache = require('node-cache');
@@ -12,12 +12,12 @@ const getDiffObj = (o1, o2) => Object.fromEntries(Object.entries(o1)
 async function createFactionRoles (client, data) {
   const [oldRoles, newRoles] = await faction.positions(data.config, data.guild.id);
   let roleNames = [];
-  if (Object.keys(oldRoles).length !== 0) {
+  if (Object.keys(oldRoles).length !== 0 && Object.keys(newRoles).length !== 0) {
     // find all positions that needs to be removed
     const deleteRoles = getDiffObj(oldRoles.positions, newRoles.positions);
     const createRoles = getDiffObj(newRoles.positions, oldRoles.positions);
     if (deleteRoles) {
-      roleNames = Object.entries(deleteRoles).filter(([k, v]) => v.default === 0).map(([k, v]) => k);
+      roleNames = Object.entries(deleteRoles).map(([k, v]) => k);
       for (const roleName of roleNames) {
         const discordRole = await data.guild.roles.cache.find(role => role.name === roleName);
         if (discordRole) discordRole.delete();
@@ -25,14 +25,14 @@ async function createFactionRoles (client, data) {
     }
 
     if (createRoles) {
-      roleNames = Object.entries(createRoles).filter(([k, v]) => v.default === 0).map(([k, v]) => k);
+      roleNames = Object.entries(createRoles).map(([k, v]) => k);
       for (const roleName of roleNames) {
         await data.guild.roles.create({ name: roleName });
       }
     }
   } else {
     if (Object.keys(newRoles).length !== 0) {
-      roleNames = Object.entries(newRoles.positions).filter(([k, v]) => v.default === 0).map(([k, v]) => k);
+      roleNames = Object.entries(newRoles.positions).map(([k, v]) => k);
       for (const roleName of roleNames) {
         const discordRole = await data.guild.roles.cache.find(role => role.name === roleName);
         if (discordRole === undefined) await data.guild.roles.create({ name: roleName });
@@ -40,8 +40,13 @@ async function createFactionRoles (client, data) {
     }
   }
   if (Object.keys(newRoles).length !== 0) {
-    const res = await Object.entries(newRoles.positions).filter(([k, v]) => v.default === 0).map(([k, v]) => data.guild.roles.cache.find(role => role.name === k)).filter(x => x !== undefined);
-    return res;
+    const roles = await Object.entries(newRoles.positions).map(([k, v]) => data.guild.roles.cache.find(role => role.name === k)).filter(x => x !== undefined);
+    const defaultRoleName = Object.entries(newRoles.positions).filter(([k, v]) => v.default === 1).map(([k, v]) => k);
+    return [roles, defaultRoleName];
+  } else if (Object.keys(oldRoles).length !== 0) {
+    const roles = await Object.entries(oldRoles.positions).map(([k, v]) => data.guild.roles.cache.find(role => role.name === k)).filter(x => x !== undefined);
+    const defaultRoleName = Object.entries(oldRoles.positions).filter(([k, v]) => v.default === 1).map(([k, v]) => k);
+    return [roles, defaultRoleName];
   } else return [];
 }
 
@@ -158,8 +163,8 @@ module.exports = {
     const verifyRole = await data.guild.roles.cache.get(data.config.Roles.Verified);
     const members = (Array.from(await data.guild.members.fetch())).filter(([k, v]) => v.manageable === true);
     const chunked = [];
-    const factionRoleList = await createFactionRoles(client, data);
-    const factionMembers = Object.entries((await faction.basic(data.config)).members).map(([k, v]) => [parseInt(k), v.position]);
+    const [factionRoleList, defaultRoleName] = await createFactionRoles(client, data);
+    const factionMembers = Object.entries((await faction.basic(data.config)).members).map(([k, v]) => [parseInt(k), v.position === 'Recruit' ? defaultRoleName : v.position]);
     while (members.length) {
       chunked.push(members.splice(0, 10));
     }
@@ -172,9 +177,11 @@ module.exports = {
           if (factionMembers.some(([k, v]) => k === tornUser.player_id) && factionRoleList) {
             let [, memberFactionRole] = factionMembers.find(([k, v]) => k === tornUser.player_id);
             memberFactionRole = await data.guild.roles.cache.find(role => role.name === memberFactionRole);
-            for (const role of factionRoleList) {
-              if (discordUser.roles.cache.has(role.id) && role.id !== memberFactionRole.id) discordUser.roles.remove(role);
-              else if (role.id === memberFactionRole.id) discordUser.roles.add(memberFactionRole);
+            if (memberFactionRole) {
+              for (const role of factionRoleList) {
+                if (discordUser.roles.cache.has(role.id) && role.id !== memberFactionRole.id) discordUser.roles.remove(role);
+                else if (role.id === memberFactionRole.id) discordUser.roles.add(memberFactionRole);
+              }
             }
           } else {
             for (const role of factionRoleList) {
@@ -228,11 +235,136 @@ module.exports = {
               }
             }
           }
-          await new Promise(resolve => setTimeout(resolve, 100));
         }
-        await new Promise(resolve => setTimeout(resolve, 5000));
+        await new Promise(resolve => setTimeout(resolve, 100));
+      }
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  },
+
+  async checkTT (client, data) {
+    const cachekeyTT = 'latestTerritoryDiff';
+    const cachekeyendedWar = 'latestTerritoryEndedTTWar';
+    const cachekeynewWar = 'latestTerritoryNewTTWar';
+    const cachekeyAllWar = 'latestTerritoryAllTTWar';
+    const cachekeyAllTT = 'latestTerritoryAllTTTT';
+    if (!cache.has(cachekeyTT) && !cache.has(cachekeyendedWar) && !cache.has(cachekeynewWar)) {
+      const [oldTT, newTT] = await torn.territoryWithWars(data.config, data.guild.id);
+      let diffTT = {};
+      let newTTWar = {};
+      let oldTTWar = {};
+      let allTTWars = [];
+      if (Object.keys(oldTT).length !== 0 && Object.keys(newTT).length !== 0) {
+        diffTT = Object.fromEntries(Object.entries(oldTT.territory)
+          .filter(([k, v]) => v.faction !== newTT.territory[k].faction)
+          .map(([k, v]) => [k, Object.fromEntries([['old', v], ['new', newTT.territory[k]]])])
+        );
+        newTTWar = Object.fromEntries(Object.entries(newTT.territorywars)
+          .filter(([k, v]) => !Object.keys(oldTT.territorywars).includes(k)));
+        oldTTWar = Object.fromEntries(Object.entries(oldTT.territorywars)
+          .filter(([k, v]) => !Object.keys(newTT.territorywars).includes(k)));
+        allTTWars = allTTWars.concat(Object.keys(oldTT.territorywars).length ? Object.keys(oldTT.territorywars) : [], Object.keys(oldTT.territorywars).length ? Object.keys(oldTT.territorywars) : []);
+        allTTWars = allTTWars.filter((item, pos) => allTTWars.indexOf(item) === pos);
+      }
+      cache.set(cachekeyTT, diffTT, 25);
+      cache.set(cachekeyendedWar, oldTTWar, 25);
+      cache.set(cachekeynewWar, newTTWar, 25);
+      cache.set(cachekeyAllWar, allTTWars, 25);
+      cache.set(cachekeyAllTT, newTT.territory, 25);
+    }
+    const diffTT = cache.get(cachekeyTT);
+    const oldTTWar = cache.get(cachekeyendedWar);
+    const newTTWar = cache.get(cachekeynewWar);
+    const allTTWars = cache.get(cachekeyAllWar);
+    const allTT = cache.get(cachekeyAllTT);
+    if ((Object.keys(diffTT).length || Object.keys(newTTWar).length || Object.keys(oldTTWar).length) && data.config.Channels.Territory) {
+      const factionMonitored = await client.guilddata.factionTeritoryMonitoring.getList(data.guild.id);
+      if (factionMonitored) {
+        const channel = await data.guild.channels.cache.get(data.config.Channels.Territory);
+        // for (const factionId of factionMonitored) {
+        // const factionInfo = await faction.basic(data.config, factionId);
+        const msgArray = [];
+        const droppedTT = Object.keys(diffTT).length
+          ? Object.entries(diffTT)
+            .filter(([k, v]) => factionMonitored.some(x => x === v.old.faction) && // v.old.faction === factionId &&
+              !(allTTWars.length && allTTWars.some(x => x === k)))
+          : [];
+
+        const takenTT = Object.keys(diffTT).length
+          ? Object.entries(diffTT)
+            .filter(([k, v]) => factionMonitored.some(x => x === v.new.faction) && // v.new.faction === factionId &&
+              !(allTTWars.length && allTTWars.some(x => x === k)))
+          : [];
+        const warAssultStarted = Object.keys(newTTWar).length
+          ? Object.entries(newTTWar).filter(([k, v]) => factionMonitored.some(x => x === v.assaulting_faction || x === v.defending_faction)) // v.assaulting_faction === factionId || v.defending_faction === factionId)
+          : [];
+        const warAssultEnded = Object.keys(oldTTWar).length
+          ? Object.entries(oldTTWar).filter(([k, v]) => factionMonitored.some(x => x === v.assaulting_faction || x === v.defending_faction)) // v.assaulting_faction === factionId || v.defending_faction === factionId)
+          : [];
+
+        for (const tt of droppedTT) {
+          const factionInfo = await faction.basic(data.config, tt[1].old.faction);
+          const oposingFactionInfo = tt[1].new.faction === 0 ? {} : await faction.basic(data.config, tt[1].new.faction);
+          const embed = new Discord.MessageEmbed()
+            .setColor(client.config.embed.color)
+            .setAuthor(`Territory movement by faction ${factionInfo.name}`)
+            .setTitle(`Territory ${tt[0]} has been dropped by faction ${factionInfo.name}`)
+            .setURL(`https://www.torn.com/city.php#terrName=${tt[0]}`)
+            .setThumbnail(`https://yata.nemi.zone/media/territories/50x50/${tt[0]}.png`);
+          Object.keys(oposingFactionInfo).length ? embed.setDescription(`New owner of territory is ${oposingFactionInfo.name}`) : embed.setDescription('There is no new owner of this territory');
+          msgArray.push(embed);
+        }
+        for (const tt of takenTT) {
+          const factionInfo = await faction.basic(data.config, tt[1].new.faction);
+          const oposingFactionInfo = tt[1].old.faction === 0 ? {} : await faction.basic(data.config, tt[1].old.faction);
+          const embed = new Discord.MessageEmbed()
+            .setColor(client.config.embed.color)
+            .setAuthor(`Territory movement by faction ${factionInfo.name}`)
+            .setTitle(`Territory ${tt[0]} has been taken by faction ${factionInfo.name}`)
+            .setURL(`https://www.torn.com/city.php#terrName=${tt[0]}`)
+            .setThumbnail(`https://yata.nemi.zone/media/territories/50x50/${tt[0]}.png`);
+          Object.keys(oposingFactionInfo).length ? embed.setDescription(`Previous owner of territory was ${oposingFactionInfo.name}`) : embed.setDescription('There was no previous owner of this territory');
+          msgArray.push(embed);
+        }
+        for (const tt of warAssultStarted) {
+          const assultingFactionInfo = await faction.basic(data.config, tt[1].assaulting_faction);
+          const defendingFactionInfo = await faction.basic(data.config, tt[1].defending_faction);
+          const embed = new Discord.MessageEmbed()
+            .setColor(client.config.embed.color)
+            .setAuthor(`A territory war has been started by faction ${assultingFactionInfo.name}`)
+            .setTitle(`Territory ${tt[0]} owned by ${defendingFactionInfo.name} has been assulted by faction ${assultingFactionInfo.name}`)
+            .setURL(`https://www.torn.com/city.php#terrName=${tt[0]}`)
+            .setThumbnail(`https://yata.nemi.zone/media/territories/50x50/${tt[0]}.png`);
+          msgArray.push(embed);
+        }
+        for (const tt of warAssultEnded) {
+          const assultingFactionInfo = await faction.basic(data.config, tt[1].assaulting_faction);
+          const defendingFactionInfo = await faction.basic(data.config, tt[1].defending_faction);
+          const winnerFactionInfo = allTT[tt[0]].faction !== 0 ? await faction.basic(data.config, allTT[tt[0]].faction) : {};
+          const embed = new Discord.MessageEmbed()
+            .setColor(client.config.embed.color)
+            .setAuthor(`The territory war by faction ${assultingFactionInfo.name} on ${tt[0]} owned by ${defendingFactionInfo.name} has ended`)
+            .setTitle(Object.keys(winnerFactionInfo).length ? `The war was won by ${winnerFactionInfo.name}` : 'The territory was abandoned')
+            .setURL(`https://www.torn.com/city.php#terrName=${tt[0]}`)
+            .setThumbnail(`https://yata.nemi.zone/media/territories/50x50/${tt[0]}.png`);
+          msgArray.push(embed);
+        }
+        try {
+          const chunked = [];
+          while (msgArray.length) {
+            chunked.push(msgArray.splice(0, 10));
+          }
+          const territoryRole = await data.guild.roles.cache.get(data.config.Roles.Territory);
+          if (territoryRole && chunked.length) channel.send(`${territoryRole}`);
+          for (const chunk of chunked) {
+            channel.send({ embeds: chunk });
+          }
+        } catch (err) {
+          this.client.logger.log(err, 'error');
+        }
       }
     }
   },
+
   createFactionRoles
 };

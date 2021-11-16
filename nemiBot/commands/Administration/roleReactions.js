@@ -96,7 +96,7 @@ class RoleReaction extends Command {
       }
 
       // Store the configuration
-      await this.client.guilddata.guildConfig.setRoleReaction(message.guild.id, enable, channel, messageId);
+      await this.client.guilddata.guildConfig.setRoleReaction(message.guild.id, enable, channel.id, messageId);
       return message.success('Role Reactions successfully enabled');
     } catch (err) {
       this.client.logger.log(err, 'error');
