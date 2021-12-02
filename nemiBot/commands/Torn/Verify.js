@@ -31,7 +31,7 @@ class Verify extends Command {
       if (discordId) {
         const userBasic = await user.basic(data.config, discordId, 30);
         if (Object.hasOwnProperty.call(userBasic, 'player_id')) {
-          if (verifyRole != null && !message.member.roles.cache.has(verifyRole.id)) message.member.roles.add(await member.guild.roles.cache.get(verifyRole));
+          if (verifyRole != null && !message.member.roles.cache.has(verifyRole.id)) message.member.roles.add(await message.member.guild.roles.cache.get(verifyRole));
           if (message.member.displayName !== `${userBasic.name} [${userBasic.player_id}]` && message.member.manageable) message.member.setNickname(`${userBasic.name} [${userBasic.player_id}]`);
           message.success(`${member} has been assosiated with Torn player ${userBasic.name} [${userBasic.player_id}]`);
         } else if (!userBasic) {
