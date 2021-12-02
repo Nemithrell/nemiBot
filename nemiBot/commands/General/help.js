@@ -22,7 +22,7 @@ class Help extends Command {
   }
 
   async run (message, args, data) {
-    const prefix = data.config.Prefix;
+    const prefix = Object.prototype.hasOwnProperty.call(data, 'config') ? data.config.Prefix : '';
     let argLower;
 
     if (typeof args[0] === 'string') argLower = (args[0]).toLowerCase();
@@ -64,10 +64,10 @@ class Help extends Command {
 
     commands.forEach((command) => {
       if (!categories.includes(command.help.category)) {
-        if (command.help.category === 'Administration' && !message.channel.permissionsFor(message.member).has('MANAGE_GUILD')) {
+        if (message.channel.type !== 'DM' && command.help.category === 'Administration' && !message.channel.permissionsFor(message.member).has('MANAGE_GUILD')) {
           return;
         }
-        if (command.help.category === 'Owner' && message.author.id !== message.guild.ownerId) {
+        if (message.channel.type !== 'DM' && command.help.category === 'Owner' && message.author.id !== message.guild.ownerId) {
           return;
         }
         categories.push(command.help.category);

@@ -7,7 +7,7 @@ const readdir = util.promisify(fs.readdir);
 // Load nemiBot class
 const NemiBot = require('./base/nemiBot.js');
 const client = new NemiBot({
-  intents: [Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
+  intents: [Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS, Intents.FLAGS.DIRECT_MESSAGES],
   partials: ['MESSAGE', 'CHANNEL', 'REACTION', 'USER']
 });
 

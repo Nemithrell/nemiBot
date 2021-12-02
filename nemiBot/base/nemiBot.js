@@ -52,7 +52,7 @@ class nemiBot extends Client {
   }
 
   async getPrefix (message, data) {
-    if (message.channel.type !== 'dm') {
+    if (message.channel.type !== 'DM') {
       const prefixes = [
         `<@!${message.client.user.id}> `,
         `<@${message.client.user.id}> `,
