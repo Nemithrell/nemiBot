@@ -27,7 +27,7 @@ class ConnectTornFaction extends Command {
         return message.error(`This command is only available in direct message! Run this command in DM with the following "ConnectTornFaction ${message.guild.id} ApiKey"`);
       } else if (!args.length === 2) {
         return message.error('Invalid number of arguments supplied. Run this command with the following "ConnectTornFaction GuildId ApiKey"');
-      } else if ((this.client.guilds.cache.get(args[0])).ownerID !== message.author.id) {
+      } else if ((await this.client.guilds.cache.get(args[0])).ownerId !== message.author.id) {
         return message.error('You are not the owner of the discord guild and are not permitted to run this command.');
       } else {
         const factionId = await registerTornFaction(args[1]);
