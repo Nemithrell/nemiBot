@@ -48,3 +48,5 @@ commands.md
 node_modules
 package-lock.json
 yarn.lock
+/nemiBot/commands/Owner/test - Copy.js
+/nemiBot/commands/Owner/testcmd.js

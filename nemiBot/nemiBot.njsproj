@@ -50,7 +50,7 @@
     <Content Include="commands\General\help.js">
       <SubType>Code</SubType>
     </Content>
-    <Content Include="commands\Owner\test.js" />
+    <Content Include="commands\Owner\testcmd.js" />
     <Content Include="commands\Torn\chainMoitoring.js" />
     <Content Include="commands\Torn\loot.js">
       <SubType>Code</SubType>
