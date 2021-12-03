@@ -52,7 +52,7 @@ module.exports = class {
         if (guildMemberNotInFaction.some((x) => x.messageId === message.id)) {
           const [notInFactionCurrent] = guildMemberNotInFaction.filter((x) => x.messageId === message.id);
           const discordUser = await reaction.message.guild.members.fetch(notInFactionCurrent.discordId);
-          const factionRoleList = await createFactionRoles(client, data);
+          const [factionRoleList] = await createFactionRoles(client, data);
           for (const role of factionRoleList) {
             if (discordUser.roles.cache.has(role.id)) discordUser.roles.remove(role);
           }
