@@ -193,8 +193,8 @@ module.exports = {
                       const channel = data.guild.channels.cache.get(data.config.Channels.NotInFaction);
                       const embed = new Discord.MessageEmbed()
                         .setDescription(`The user: ${tornUser.name} is assigned the faction role: ${role.name}, but the user is not a member of faction. Please use the react icon to remove the role from the user.`)
-                        .setColor(this.client.config.embed.color)
-                        .setFooter(this.client.config.embed.footer)
+                        .setColor(client.config.embed.color)
+                        .setFooter(client.config.embed.footer)
                         .setAuthor('Discord user with Faction role that is not a member of faction.');
 
                       // Send the embedded message in the mentioned channel and react with all the applicable reactions.
