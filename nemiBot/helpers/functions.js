@@ -56,6 +56,7 @@ module.exports = {
     const npcChannelID = data.config.Channels.NPC;
     const res = await Promise.all(data.npcConfig.ids.map(id => user.profile(data.config, id, 300)));
     for (const npc of res) {
+      if (!Object.prototype.hasOwnProperty.call(npc, 'states')) return;
       if (npc.states.hospital_timestamp !== 0) await client.guilddata.npcConfig.updateNpcHospTime(npc.player_id, npc.states.hospital_timestamp);
 
       const npcHospTime = await client.guilddata.npcConfig.getNpcHospTime(npc.player_id);
@@ -97,6 +98,7 @@ module.exports = {
       const [ocChannel, ocRole] = await Promise.all([data.guild.channels.cache.get(data.config.Channels.Crime), data.guild.roles.cache.get(data.config.Roles.Crime)]);
 
       let crimes = await faction.crimes(data.config);
+      if (!Object.prototype.hasOwnProperty.call(crimes, 'crimes')) return;
       crimes = Object.entries(crimes.crimes).filter(([key, val]) => val.time_completed === 0 && val.time_left === 0);
       crimes = Object.fromEntries(crimes.filter(([key, val]) => !val.participants.some(inner => Object.values(inner)[0].state !== 'Okay')));
       let sendMessage = false;

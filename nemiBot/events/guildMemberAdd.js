@@ -12,7 +12,7 @@ module.exports = class {
       const verifyRole = guildConfig.Roles.Verified;
       if (discordId) {
         const tornUser = await user.profile(guildConfig, discordId, 30);
-        if (tornUser) {
+        if (Object.prototype.hasOwnProperty.call(tornUser, 'name')) {
           if (verifyRole != null) member.roles.add(await member.guild.roles.cache.get(verifyRole));
           member.setNickname(`${tornUser.name} [${tornUser.player_id}]`);
           const factionMembers = Object.entries((await faction.basic(guildConfig)).members).map(([k, v]) => [parseInt(k), v.position]);
