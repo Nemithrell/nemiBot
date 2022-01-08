@@ -85,9 +85,9 @@ module.exports = class {
         return message.error('This command is only available to the guild owner!');
       }
 
-      if (cmd.conf.factionMembersOnly && !message.member.roles.cache.has((await resolveRole({ message, search: data.config.Roles.FactionMembers })).id)) {
-        return message.error('This command is only available to the Faction members!');
-      }
+      //if (cmd.conf.factionMembersOnly && !message.member.roles.cache.has((await resolveRole({ message, search: data.config.Roles.FactionMembers })).id)) {
+      //  return message.error('This command is only available to the Faction members!');
+      //}
 
       neededPermissions = [];
       cmd.conf.memberPermissions.forEach((perm) => {
