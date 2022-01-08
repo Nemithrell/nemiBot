@@ -9,11 +9,11 @@ module.exports = class {
     const guildConfig = await this.client.guilddata.guildConfig.getGuildConfig(member.guild.id);
     try {
       const discordId = member ? member.id : null;
-      const verifyRole = guildConfig.Roles.Verified;
+      const verifyRole = await member.guild.roles.cache.get(guildConfig.Roles.Verified);
       if (discordId) {
         const tornUser = await user.profile(guildConfig, discordId, 30);
         if (Object.prototype.hasOwnProperty.call(tornUser, 'name')) {
-          if (verifyRole != null) member.roles.add(await member.guild.roles.cache.get(verifyRole));
+          if (verifyRole != null) await member.roles.add(verifyRole);
           member.setNickname(`${tornUser.name} [${tornUser.player_id}]`);
           const factionMembers = Object.entries((await faction.basic(guildConfig)).members).map(([k, v]) => [parseInt(k), v.position]);
           if (factionMembers.some(([k, v]) => k === tornUser.player_id)) {
