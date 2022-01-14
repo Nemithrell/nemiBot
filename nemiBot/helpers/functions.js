@@ -188,9 +188,9 @@ module.exports = {
               const guildMemberNotInFaction = await client.guilddata.guildMemberNotInFaction.getList(data.guild.id);
               if (guildMemberNotInFaction.length !== 0 && data.config.Channels.NotInFaction) {
                 if (guildMemberNotInFaction.some((x) => x.player_id === tornUser.player_id)) {
-                  const [messageId] = guildMemberNotInFaction.find((x) => x.player_id === tornUser.player_id).map((x) => x.messageId);
+                  const [notInFactionCurrent] = guildMemberNotInFaction.find((x) => x.player_id === tornUser.player_id);
                   const channel = await data.guild.channels.cache.get(data.config.Channels.NotInFaction);
-                  const message = await channel.messages.fetch(messageId);
+                  const message = await channel.messages.fetch(notInFactionCurrent.messageId);
                   await message.delete();
                 }
               }
