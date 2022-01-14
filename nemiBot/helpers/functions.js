@@ -184,6 +184,16 @@ module.exports = {
                 if (discordUser.roles.cache.has(role.id) && role.id !== memberFactionRole.id) discordUser.roles.remove(role);
                 else if (role.id === memberFactionRole.id) discordUser.roles.add(memberFactionRole);
               }
+              // remove kick message if member returned
+              const guildMemberNotInFaction = await client.guilddata.guildMemberNotInFaction.getList(data.guild.id);
+              if (guildMemberNotInFaction.length !== 0 && data.config.Channels.NotInFaction) {
+                if (guildMemberNotInFaction.some((x) => x.player_id === tornUser.player_id)) {
+                  const [messageId] = guildMemberNotInFaction.find((x) => x.player_id === tornUser.player_id).map((x) => x.messageId);
+                  const channel = await data.guild.channels.cache.get(data.config.Channels.NotInFaction);
+                  const message = await channel.messages.fetch(messageId);
+                  await message.delete();
+                }
+              }
             }
           } else {
             for (const role of factionRoleList) {
