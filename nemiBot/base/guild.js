@@ -70,6 +70,7 @@ async function updateGuildConfig (jsonb, guildId) {
 const guildMemberNotInFaction = {
   getList: async (guildId) => {
     const cacheKey = `${guildId}guldMemberNotInFactionList`;
+    if (cache.has(cacheKey)) return cache.get(cacheKey);
     const arr = await torndb.Query(`select data from guilddata where guildid = '${guildId}' and type = 'guldMemberNotInFaction';`);
     const [{ data = [] } = {}] = arr;
     cache.set(cacheKey, data);
@@ -87,6 +88,7 @@ const guildMemberNotInFaction = {
 const factionTeritoryMonitoring = {
   getList: async (guildId) => {
     const cacheKey = `${guildId}factionTeritoryMonitoringList`;
+    if (cache.has(cacheKey)) return cache.get(cacheKey);
     const arr = await torndb.Query(`select data from guilddata where guildid = '${guildId}' and type = 'factionTeritoryMonitoring';`);
     const [{ data = [] } = {}] = arr;
     cache.set(cacheKey, data);
@@ -119,6 +121,30 @@ const factionTeritoryMonitoring = {
     const [{ data }] = await torndb.Query(`insert into guilddata (guildid, type, data) values ('${guildId}', 'factionTeritoryMonitoring', '${JSON.stringify(newData)}') on conflict (guildid, type) do update set data = EXCLUDED.data returning data;`);
     cache.set(cacheKey, data);
     return data;
+  }
+};
+
+const stockData = {
+  insert: async (timestamp, record) => {
+    const cacheKeyRecord = `${timestamp}stockData`;
+    const cacheKeyData = 'stockData';
+    if (cache.has(cacheKeyRecord)) {
+      return null;
+    } else {
+      await torndb.Query(`insert into stockdata (timestamp, data) values (${timestamp}, '${JSON.stringify(record).replace(/'/g, '\'\'')}') on conflict (timestamp) do nothing;`);
+      const data = await torndb.Query('select * from stockdata;');
+      cache.set(cacheKeyData, data);
+      return data;
+    }
+  },
+  getData: async () => {
+    const cacheKeyData = 'stockData';
+    if (cache.has(cacheKeyData)) return cache.get(cacheKeyData);
+    else {
+      const data = await torndb.Query('select * from stockdata;');
+      cache.set(cacheKeyData, data);
+      return data;
+    }
   }
 };
 
@@ -243,6 +269,7 @@ async function deleteGuild (guildId) {
 module.exports = {
   guildConfigData,
   guildConfig,
+  stockData,
   npcConfig,
   creatGuild,
   deleteGuild,
