@@ -138,8 +138,10 @@ module.exports = {
         const cacheKey = `GuildID${data.guild.id}chaintimestamp${chain.timestamp}`;
         if (chainChannel && cache.get(cacheKey) === undefined) {
           sendMessage = true;
-          chainTimer = isNaN(parseInt(chain.chain.timeout)) ? 0 : parseInt(chain.chain.timeout) - ((new Date()).getTime() / 1000) - chain.timestamp;
+          // chainTimer = isNaN(parseInt(chain.chain.timeout)) ? 0 : parseInt(chain.chain.timeout) - ((new Date()).getTime() / 1000) - chain.timestamp;
         }
+
+        chainTimer = isNaN(parseInt(chain.chain.timeout)) ? 0 : parseInt(chain.chain.timeout) - (Math.ceil(Date.now() / 1000) - chain.timestamp);
         cache.set(cacheKey, true, 30);
         if (sendMessage && (chainTimer > 0 && chainTimer <= 90)) {
           if (chainRole) chainChannel.send(`${chainRole}`);
@@ -149,7 +151,20 @@ module.exports = {
             .addField('The Chain hit counter is: ', chain.chain.current, true);
           chainChannel.send({ embeds: [embed] });
         }
-        if (chain.chain.cooldown !== 0 || chain.chain.current === 0) client.guilddata.guildConfig.setChainWatch(data.guild.id, false);
+        if (chain.chain.cooldown !== 0 || chain.chain.current === 0) {
+          chainChannel.send('monitoring stopped');
+          client.guilddata.guildConfig.setChainWatch(data.guild.id, false);
+        }
+
+        const statusMessageCacheKey = `GuildID${data.guild.id}StatusMessageSent`;
+        if (!cache.has(statusMessageCacheKey) && chain) {
+          cache.set(statusMessageCacheKey, true, 600);
+          const embed = new Discord.MessageEmbed()
+            .setColor(client.config.embed.color)
+            .setAuthor('Chain monitoring is currently enabled')
+            .addField('The Chain hit counter is: ', chain.chain.current.toLocaleString(), true);
+          chainChannel.send({ embeds: [embed] });
+        }
       } catch (error) {
         if (!chainApiError) {
           chainApiError = true;

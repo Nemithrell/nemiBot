@@ -26,10 +26,10 @@ const pool = new Pool({
 async function Query (query, params) {
   const db = await pool.connect();
   try {
-    const start = Date.now();
+    // const start = Date.now();
     const res = await db.query(query, params);
-    const duration = Date.now() - start;
-    logger.log(`executed query, ${query}, ${duration}, rows: ${res.rowCount}`, 'debug');
+    // const duration = Date.now() - start;
+    // logger.log(`executed query, ${query}, ${duration}, rows: ${res.rowCount}`, 'debug');
     return res.rows;
   } catch (err) {
     logger.log(err.stack, 'error');
