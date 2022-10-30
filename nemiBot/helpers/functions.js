@@ -129,7 +129,7 @@ module.exports = {
         const chain = await faction.chain(data.config);
         if (chain && chainApiError) {
           chainApiError = false;
-          if (chainRole) chainChannel.send(`${chainRole}`);
+          if (chainRole) await chainChannel.send(`${chainRole}`);
           if (chainChannel) chainChannel.error('Torn Api is back online. Chain is being monitored.');
         }
         let sendMessage = false;
@@ -146,15 +146,15 @@ module.exports = {
         const alertMessageCacheKey = `GuildID${data.guild.id}AlertMessageSent`;
         if (sendMessage && (chainTimer > 0 && chainTimer <= 90) && (cache.has(alertMessageCacheKey))) {
           cache.set(alertMessageCacheKey, true, 180);
-          if (chainRole) chainChannel.send(`${chainRole}`);
+          if (chainRole) await chainChannel.send(`${chainRole}`);
           const embed = new Discord.MessageEmbed()
             .setColor(client.config.embed.color)
             .setAuthor(`The chain is about to time out in ${prettyMS(chainTimer * 1000, { secondsDecimalDigits: 0 })}. Please make a hit.`, 'https://www.torn.com/images/items/399/large.png', 'https://www.torn.com/')
             .addField('The Chain hit counter is: ', chain.chain.current, true);
-          chainChannel.send({ embeds: [embed] });
+          await chainChannel.send({ embeds: [embed] });
         }
         if (chain.chain.cooldown !== 0 || chain.chain.current === 0) {
-          chainChannel.send('monitoring stopped');
+          await chainChannel.send('monitoring stopped');
           client.guilddata.guildConfig.setChainWatch(data.guild.id, false);
         }
 
