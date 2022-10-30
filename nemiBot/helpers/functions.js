@@ -82,8 +82,8 @@ module.exports = {
             data.guild.roles.resolve(data.config.Roles.NPC)]);
 
           if (npcChannel) {
-            if (npcRole) npcChannel.send({ content: `${npcRole}`, embeds: [embed] });
-            else npcChannel.send({ embeds: [embed] });
+            if (npcRole) await npcChannel.send({ content: `${npcRole}`, embeds: [embed] });
+            else await npcChannel.send({ embeds: [embed] });
           }
           cache.set(cacheKey, true);
         }
@@ -115,8 +115,8 @@ module.exports = {
           .setColor(client.config.embed.color)
           .setAuthor('An OC is ready for initiation, please click here to access faction crime page.', 'https://www.torn.com/images/crimes/i.png', 'https://www.torn.com/factions.php?step=your#/tab=crimes');
 
-        if (ocRole) ocChannel.send({ content: `${ocRole}`, embeds: [embed] });
-        else ocChannel.send({ embeds: [embed] });
+        if (ocRole) await ocChannel.send({ content: `${ocRole}`, embeds: [embed] });
+        else await ocChannel.send({ embeds: [embed] });
       }
     }
   },
@@ -165,14 +165,14 @@ module.exports = {
             .setColor(client.config.embed.color)
             .setAuthor('Chain monitoring is currently enabled')
             .addField('The Chain hit counter is: ', chain.chain.current.toLocaleString(), true);
-          chainChannel.send({ embeds: [embed] });
+          await chainChannel.send({ embeds: [embed] });
         }
       } catch (error) {
         if (!chainApiError) {
           chainApiError = true;
           const [chainChannel, chainRole] = await Promise.all([data.guild.channels.cache.get(data.config.Channels.Chain), data.guild.roles.cache.get(data.config.Roles.Chain)]);
-          if (chainRole) chainChannel.send(`${chainRole}`);
-          if (chainChannel) chainChannel.error('Torn Api Error. Please monitor chan manually.');
+          if (chainRole) await chainChannel.send(`${chainRole}`);
+          if (chainChannel) await chainChannel.error('Torn Api Error. Please monitor chan manually.');
         }
       }
     }
@@ -384,9 +384,9 @@ module.exports = {
             chunked.push(msgArray.splice(0, 10));
           }
           const territoryRole = await data.guild.roles.cache.get(data.config.Roles.Territory);
-          if (territoryRole && chunked.length) channel.send(`${territoryRole}`);
+          if (territoryRole && chunked.length) await channel.send(`${territoryRole}`);
           for (const chunk of chunked) {
-            channel.send({ embeds: chunk });
+            await channel.send({ embeds: chunk });
           }
         } catch (err) {
           this.client.logger.log(err, 'error');
