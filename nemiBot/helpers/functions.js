@@ -143,7 +143,9 @@ module.exports = {
 
         chainTimer = isNaN(parseInt(chain.chain.timeout)) ? 0 : parseInt(chain.chain.timeout) - (Math.ceil(Date.now() / 1000) - chain.timestamp);
         cache.set(cacheKey, true, 30);
-        if (sendMessage && (chainTimer > 0 && chainTimer <= 90)) {
+        const alertMessageCacheKey = `GuildID${data.guild.id}AlertMessageSent`;
+        if (sendMessage && (chainTimer > 0 && chainTimer <= 90) && (cache.has(alertMessageCacheKey))) {
+          cache.set(alertMessageCacheKey, true, 180);
           if (chainRole) chainChannel.send(`${chainRole}`);
           const embed = new Discord.MessageEmbed()
             .setColor(client.config.embed.color)
