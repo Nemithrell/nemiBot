@@ -127,11 +127,13 @@ module.exports = {
         const [chainChannel, chainRole] = await Promise.all([data.guild.channels.cache.get(data.config.Channels.Chain), data.guild.roles.cache.get(data.config.Roles.Chain)]);
 
         const chain = await faction.chain(data.config);
-        // if (chain && chainApiError) {
-        //   chainApiError = false;
-        //   if (chainRole) await chainChannel.send(`${chainRole}`);
-        //   if (chainChannel) await chainChannel.error('Torn Api is back online. Chain is being monitored.');
-        // }
+        if (chain && chainApiError) {
+          chainApiError = false;
+          if (chainRole) await chainChannel.send(`${chainRole}`);
+          if (chainChannel) await chainChannel.send('Torn Api is back online. Chain is being monitored.');
+        }
+        if (chainApiError) return;
+
         let sendMessage = false;
         let chainTimer = 0;
 
@@ -172,7 +174,7 @@ module.exports = {
           chainApiError = true;
           const [chainChannel, chainRole] = await Promise.all([data.guild.channels.cache.get(data.config.Channels.Chain), data.guild.roles.cache.get(data.config.Roles.Chain)]);
           if (chainRole) await chainChannel.send(`${chainRole}`);
-          if (chainChannel) await chainChannel.error('Torn Api Error. Please monitor chan manually.');
+          if (chainChannel) await chainChannel.send('Torn Api Error. Please monitor chan manually.');
         }
       }
     }
