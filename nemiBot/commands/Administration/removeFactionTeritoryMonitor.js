@@ -11,9 +11,9 @@ class RemoveFactionTeritoryMonitor extends Command {
       enabled: true,
       guildOnly: true,
       aliases: ['FTT-', 'FTTRemove'],
-      memberPermissions: ['MANAGE_GUILD'],
+      memberPermissions: [],
       botPermissions: ['SEND_MESSAGES', 'EMBED_LINKS'],
-      factionMembersOnly: false,
+      factionMembersOnly: true,
       nsfw: false,
       ownerOnly: false,
       cooldown: 5000
