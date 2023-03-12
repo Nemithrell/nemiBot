@@ -38,15 +38,15 @@ async function run (client) {
     });
   } catch (error) { client.logger.log(error, 'error'); }
 
-  try {
-    cron.schedule('*/10 * * * * *', async () => {
-      for (const data of await getData(client)) {
-        if (data.config.Faction.Id) {
-          functions.checkChain(client, data);
-        }
-      }
-    });
-  } catch (error) { client.logger.log(error, 'error'); }
+  // try {
+  //   cron.schedule('*/10 * * * * *', async () => {
+  //     for (const data of await getData(client)) {
+  //       if (data.config.Faction.Id) {
+  //         functions.checkChain(client, data);
+  //       }
+  //     }
+  //   });
+  // } catch (error) { client.logger.log(error, 'error'); }
 
   try {
     cron.schedule('* 2 * * *', async () => {
@@ -58,15 +58,15 @@ async function run (client) {
     });
   } catch (error) { client.logger.log(error, 'error'); }
 
-  try {
-    cron.schedule('*/30 * * * * *', async () => {
-      for (const data of await getData(client)) {
-        if (data.config.Faction.Id && data.config.Channels.Territory) {
-          functions.checkTT(client, data);
-        }
-      }
-    });
-  } catch (error) { client.logger.log(error, 'error'); }
+  // try {
+  //   cron.schedule('*/30 * * * * *', async () => {
+  //     for (const data of await getData(client)) {
+  //       if (data.config.Faction.Id && data.config.Channels.Territory) {
+  //         functions.checkTT(client, data);
+  //       }
+  //     }
+  //   });
+  // } catch (error) { client.logger.log(error, 'error'); }
 }
 
 module.exports = { run };
